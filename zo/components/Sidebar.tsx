@@ -98,7 +98,7 @@ export function Sidebar() {
             <Hexagon className="w-6 h-6 text-white" />
           </div>
           <div>
-            <div className="font-bold text-lg text-[var(--text-primary)] leading-tight tracking-tight">SourcingHub</div>
+            <div className="font-bold text-lg text-[var(--text-primary)] leading-tight tracking-tight">zo</div>
             <div className="text-[10px] text-[var(--text-secondary)] font-semibold uppercase tracking-[0.2em]">Enterprise OS</div>
           </div>
         </Link>

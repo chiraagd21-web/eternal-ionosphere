@@ -1,4 +1,4 @@
-# AI Procurement Sourcing Application
+# zo.flow
 
 A production-grade full-stack platform for intelligent global supplier discovery, real-time weighted scoring, and automated RFQ generation.
 

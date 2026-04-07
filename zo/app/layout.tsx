@@ -4,11 +4,11 @@ import { Providers } from './providers'
 import { Sidebar } from '@/components/Sidebar'
 
 export const metadata: Metadata = {
-  title: 'AI Procurement Sourcing | Intelligent Supply Chain Intelligence',
+  title: 'zo.flow | Intelligent Supply Chain Intelligence',
   description: 'AI-powered procurement platform that finds global suppliers, scores them automatically, and generates RFQs in seconds.',
   keywords: 'procurement, sourcing, supply chain, AI, RFQ, suppliers',
   openGraph: {
-    title: 'AI Procurement Sourcing',
+    title: 'zo.flow',
     description: 'Intelligent supply chain sourcing powered by AI',
     type: 'website',
   },

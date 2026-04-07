@@ -1,5 +1,5 @@
 {
-  "name": "sourcing-app",
+  "name": "zo.flow",
   "version": "0.1.0",
   "private": true,
   "main": "electron-main.js",
