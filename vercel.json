@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "src": "eternal-ionosphere/package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/eternal-ionosphere/$1"
+    }
+  ]
+}
