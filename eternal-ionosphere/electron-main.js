@@ -10,7 +10,7 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: false,
     },
-    title: "Eternal Ionosphere",
+    title: "zo.flow",
     autoHideMenuBar: true,
   });
 
