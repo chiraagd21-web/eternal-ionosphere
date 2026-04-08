@@ -1,5 +1,21 @@
 import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
+import { persist, createJSONStorage, StateStorage } from 'zustand/middleware'
+import { supabase } from './supabase'
+
+const supabaseStorage: StateStorage = {
+  getItem: async (name: string): Promise<string | null> => {
+    const { data, error } = await supabase.from('app_state').select('value').eq('id', name).single();
+    if (error || !data) return null;
+    return JSON.stringify(data.value);
+  },
+  setItem: async (name: string, value: string): Promise<void> => {
+    await supabase.from('app_state').upsert({ id: name, value: JSON.parse(value) });
+  },
+  removeItem: async (name: string): Promise<void> => {
+    await supabase.from('app_state').delete().eq('id', name);
+  }
+};
+
 
 // RESTORING MASTER CATALOG FOR REFERENCE
 export const PRE_DEFINED_CATALOG = [
@@ -213,7 +229,7 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'ag-unified-v17-deductions',
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => supabaseStorage),
       version: 17,
     }
   )

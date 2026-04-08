@@ -34,7 +34,7 @@ interface FinanceRow {
   unit_price: number;
   total: number;
   status: 'matched' | 'mismatch' | 'pending';
-  type: 'asn' | 'invoice';
+  type: 'asn' | 'invoice' | 'po';
 }
 
 interface MatchResult {
@@ -51,12 +51,13 @@ interface MatchResult {
 export default function FinancesPage() {
   const [asnData, setAsnData] = useState<FinanceRow[]>([])
   const [invoiceData, setInvoiceData] = useState<FinanceRow[]>([])
+  const [poData, setPoData] = useState<FinanceRow[]>([])
   const [results, setResults] = useState<MatchResult[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
   const [showResults, setShowResults] = useState(false)
   const { toasts, showToast, removeToast } = useToast()
 
-  const handleFileUpload = (type: 'asn' | 'invoice', e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (type: 'asn' | 'invoice' | 'po', e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -87,9 +88,12 @@ export default function FinancesPage() {
         if (type === 'asn') {
             setAsnData(normalized)
             showToast(`Registered ${normalized.length} ASN records`, 'success')
-        } else {
+        } else if (type === 'invoice') {
             setInvoiceData(normalized)
             showToast(`Registered ${normalized.length} Invoice records`, 'success')
+        } else {
+            setPoData(normalized)
+            showToast(`Registered ${normalized.length} PO records`, 'success')
         }
       } catch (err) {
         showToast('Sync error: Incompatible data structure', 'error')
@@ -223,7 +227,7 @@ export default function FinancesPage() {
           </button>
           <button 
             onClick={() => {
-                setAsnData([]); setInvoiceData([]); setShowResults(false);
+                setAsnData([]); setInvoiceData([]); setPoData([]); setShowResults(false);
                 showToast('Batch registry cleared', 'info')
             }}
             className="flex items-center gap-3 bg-indigo-600 hover:bg-indigo-500 text-[var(--bg-0)] px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-indigo-600/20 active:scale-95 transition-all"
@@ -234,7 +238,25 @@ export default function FinancesPage() {
       </div>
 
       {!showResults ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 max-w-7xl mx-auto">
+          {/* PO Upload */}
+          <div className="group relative">
+            <div className={`p-10 rounded-[40px] border-2 border-dashed transition-all duration-500 h-full flex flex-col items-center justify-center text-center ${poData.length > 0 ? 'border-amber-500/50 bg-amber-500/5' : 'border-[var(--border)] bg-[var(--bg-1)] hover:border-amber-500/50 hover:bg-[var(--bg-2)]'}`}>
+                <div className={`w-20 h-20 rounded-[32px] flex items-center justify-center mb-6 transition-all shadow-2xl ${poData.length > 0 ? 'bg-amber-500 text-[var(--bg-0)]' : 'bg-[var(--bg-0)] border border-[var(--border)] text-[var(--text-secondary)] opacity-40 group-hover:text-amber-400'}`}>
+                  {poData.length > 0 ? <CheckCircle2 size={32} /> : <FileCheck size={32} />}
+                </div>
+                <h3 className="text-xl font-black uppercase tracking-tight mb-2 text-[var(--text-primary)]">Purchase Order</h3>
+                <p className="text-[var(--text-secondary)] opacity-40 text-[10px] font-black uppercase tracking-widest mb-8 max-w-[200px] leading-relaxed">
+                  Upload PO data (.xlsx)
+                </p>
+                <div className="relative">
+                  <input type="file" onChange={(e) => handleFileUpload('po', e)} className="absolute inset-0 opacity-0 cursor-pointer" accept=".xlsx, .xls" />
+                  <button className={`px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl ${poData.length > 0 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-[var(--bg-1)] text-[var(--text-primary)] hover:scale-105'}`}>
+                    {poData.length > 0 ? 'Record Ready' : 'Select Payload'}
+                  </button>
+                </div>
+            </div>
+          </div>
           {/* ASN Upload */}
           <div className="group relative">
             <div className={`p-10 rounded-[40px] border-2 border-dashed transition-all duration-500 h-full flex flex-col items-center justify-center text-center ${asnData.length > 0 ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-[var(--border)] bg-[var(--bg-1)] hover:border-indigo-500/50 hover:bg-[var(--bg-2)]'}`}>
@@ -287,8 +309,8 @@ export default function FinancesPage() {
           <div className="md:col-span-2 flex justify-center mt-12">
             <button
               onClick={runMatching}
-              disabled={asnData.length === 0 || invoiceData.length === 0 || isProcessing}
-              className={`group flex items-center gap-4 px-12 py-5 rounded-3xl font-black uppercase tracking-[0.2em] text-xs transition-all shadow-2xl ${asnData.length > 0 && invoiceData.length > 0 && !isProcessing ? 'bg-indigo-600 text-[var(--bg-0)] hover:scale-[1.05] shadow-indigo-600/30' : 'bg-[var(--bg-1)] text-[var(--text-secondary)] opacity-20 cursor-not-allowed border border-[var(--border)]'}`}
+              disabled={asnData.length === 0 || invoiceData.length === 0 || poData.length === 0 || isProcessing}
+              className={`group flex items-center gap-4 px-12 py-5 rounded-3xl font-black uppercase tracking-[0.2em] text-xs transition-all shadow-2xl ${asnData.length > 0 && invoiceData.length > 0 && poData.length > 0 && !isProcessing ? 'bg-indigo-600 text-[var(--bg-0)] hover:scale-[1.05] shadow-indigo-600/30' : 'bg-[var(--bg-1)] text-[var(--text-secondary)] opacity-20 cursor-not-allowed border border-[var(--border)]'}`}
             >
               {isProcessing ? (
                 <><RefreshCw className="animate-spin" size={20} /> ALIGNING PROTOCOLS...</>

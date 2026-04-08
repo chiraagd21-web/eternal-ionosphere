@@ -31,6 +31,7 @@ const navGroups = [
     label: 'Intelligence',
     items: [
       { href: '/dashboard', label: 'Executive Hub', icon: LayoutDashboard },
+      { href: '/market', label: 'Macro Operations', icon: Activity },
       { href: '/forecasting', label: 'Predictive Ops', icon: TrendingUp },
     ]
   },

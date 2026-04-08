@@ -15,6 +15,7 @@ import {
   LineChart, Line, PieChart, Pie, Cell
 } from 'recharts'
 import { useAppStore } from '@/lib/store'
+import { JarvisOrb } from '@/components/JarvisOrb'
 
 // --- High-Density Hub Data ---
 const DEMAND_DATA = [
@@ -225,6 +226,8 @@ export default function DashboardPage() {
         </motion.div>
 
       </div>
+      
+      <JarvisOrb />
     </div>
   )
 }
