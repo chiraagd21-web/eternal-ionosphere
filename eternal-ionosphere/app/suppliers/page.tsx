@@ -1,443 +1,313 @@
 'use client'
-import { useState } from 'react'
+
+import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Filter, Star, MapPin, Clock, ChevronDown, Plus, Download, Loader2, ExternalLink, ShieldCheck, Globe, Cpu, Zap, Share2, Activity } from 'lucide-react'
+import { Search, Loader2, ExternalLink, ShoppingCart, Globe, BookOpen, ChevronRight, Sparkles, ArrowRight, Image as ImageIcon, Link2 } from 'lucide-react'
 
-type Supplier = {
-  id: string
+interface WebResult {
+  title: string
+  url: string
+  snippet: string
+}
+
+interface ShoppingLink {
   name: string
-  productName?: string
-  imageUrl?: string
-  country: string
-  region?: string
-  flag: string
-  category: string
-  score: number
-  price: number
-  rawPrice?: string
-  moq?: number
-  leadTime: number
-  rating: number
-  verified: boolean
-  shortlisted: boolean
-  url?: string
+  url: string
+  icon: string
+  color: string
 }
 
-const MOCK_SUPPLIERS: Supplier[] = [
-  { id:'1', name:'Shenzhen TechParts Co.', productName: 'Custom CNC Machined Aluminum Enclosure', imageUrl: 'https://images.unsplash.com/photo-1590494444583-02f0fc981273?auto=format&fit=crop&q=80&w=400', country:'China', region:'Asia', flag:'🇨🇳', category:'Electronics', score:94, price:72, rawPrice: 'US$65.00-75.00', moq:1000, leadTime:14, rating:4.8, verified:true, shortlisted:false },
-  { id:'2', name:'Flex Ltd. Singapore', productName: 'Automotive Grade Fasteners & Brackets', imageUrl: 'https://images.unsplash.com/photo-1544724569-5f546fb6f6e4?auto=format&fit=crop&q=80&w=400', country:'Singapore', region:'Asia', flag:'🇸🇬', category:'EMS', score:91, price:89, rawPrice: 'US$80.00-89.00', moq:500, leadTime:18, rating:4.7, verified:true, shortlisted:true },
-  { id:'3', name:'Jabil Circuit Inc.', productName: 'High Precision Injection Molded Plastics', imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=400', country:'USA', region:'North America', flag:'🇺🇸', category:'Manufacturing', score:88, price:114, rawPrice: 'US$90.00-110.00', moq:200, leadTime:21, rating:4.6, verified:true, shortlisted:false },
-  { id:'4', name:'Foxconn Industrial', productName: '5G Communication PCB Assembly', imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=400', country:'China', region:'Asia', flag:'🇨🇳', category:'Assembly', score:86, price:68, rawPrice: 'US$55.00-68.00', moq:2500, leadTime:12, rating:4.5, verified:true, shortlisted:true },
-]
-
-function ScoreRing({ score }: { score: number }) {
-  const r = 22; const circ = 2 * Math.PI * r
-  const dash = (score / 100) * circ
-  const color = score >= 90 ? '#10b981' : score >= 80 ? '#6366f1' : '#f59e0b'
-  return (
-    <svg width="56" height="56" viewBox="0 0 56 56">
-      <circle cx="28" cy="28" r={r} stroke="var(--border)" strokeWidth="4" fill="none"/>
-      <circle cx="28" cy="28" r={r} stroke={color} strokeWidth="4" fill="none"
-        strokeDasharray={`${dash} ${circ}`} strokeDashoffset={circ/4} strokeLinecap="round"
-        style={{transition:'stroke-dasharray 0.8s cubic-bezier(0.4,0,0.2,1)'}}/>
-      <text x="28" y="28" textAnchor="middle" dominantBaseline="central"
-        fill="var(--text-primary)" fontSize="11" fontWeight="700">{score}</text>
-    </svg>
-  )
+interface RelatedTopic {
+  text: string
+  url: string
 }
 
-export default function SuppliersPage() {
+interface SearchData {
+  query: string
+  abstract: string
+  abstractSource: string
+  abstractUrl: string
+  image: string
+  heading: string
+  webResults: WebResult[]
+  shoppingLinks: ShoppingLink[]
+  relatedTopics: RelatedTopic[]
+  infobox: { label: string; value: string }[]
+}
+
+export default function GlobalSearchPage() {
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(false)
-  const [suppliers, setSuppliers] = useState<Supplier[]>(MOCK_SUPPLIERS)
-  const [selectedCategory, setSelectedCategory] = useState('All')
-  const [selectedRegion, setSelectedRegion] = useState('All')
-  const [sortOrder, setSortOrder] = useState('score')
-  const [shortlistOnly, setShortlistOnly] = useState(false)
-  const [insight, setInsight] = useState<string | null>(null)
-  const [sources, setSources] = useState<string[]>([])
-  const [searchStep, setSearchStep] = useState<string>('')
-  const [isDeepSearch, setIsDeepSearch] = useState(true)
+  const [data, setData] = useState<SearchData | null>(null)
+  const [searchStep, setSearchStep] = useState('')
+  const [hasSearched, setHasSearched] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  const categories = ['All', ...Array.from(new Set(suppliers.map(s => s.category)))]
-  const regions = ['All', 'Asia', 'North America', 'Europe', 'Global']
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [])
 
-  const filtered = suppliers.filter(s => {
-    const qLower = query.toLowerCase()
-    const matchQ = !query || 
-                   s.name.toLowerCase().includes(qLower) ||
-                   (s.productName?.toLowerCase() || '').includes(qLower) ||
-                   s.url?.toLowerCase().includes(qLower) ||
-                   true // For global search, we want to see everything returned by the crawler
-    
-    const matchC = selectedCategory === 'All' || s.category === selectedCategory
-    const matchR = selectedRegion === 'All' || s.region === selectedRegion
-    const matchS = !shortlistOnly || s.shortlisted
-    return matchQ && matchC && matchR && matchS
-  })
-
-  // Apply sorting
-  const sorted = [...filtered].sort((a, b) => {
-    if (sortOrder === 'price_low') return a.price - b.price
-    if (sortOrder === 'price_high') return b.price - a.price
-    if (sortOrder === 'lead_time') return a.leadTime - b.leadTime
-    return b.score - a.score
-  })
-
-  async function handleSearch() {
-    if (!query.trim()) return
+  const handleSearch = async (searchQuery?: string) => {
+    const q = searchQuery || query
+    if (!q.trim()) return
+    setQuery(q)
     setLoading(true)
-    setInsight(null)
-    setSources([])
-    
-    // Simulate thinking steps
-    const steps = [
-      "Accessing global B2B manufacturing hubs...",
-      "Filtering out educational and non-commercial results...",
-      "Scraping verified price lists and MOQ data...",
-      "Analyzing supplier history on Alibaba & ThomasNet...",
-      "Comparing logistics lead times and reliability...",
-      "Finalizing deep-web sourcing intelligence report..."
-    ]
+    setHasSearched(true)
+    setData(null)
 
-    let stepIdx = 0
-    const stepInterval = setInterval(() => {
-      setSearchStep(steps[stepIdx])
-      stepIdx = (stepIdx + 1) % steps.length
-    }, 1200)
+    const steps = [
+      'Scanning the web...',
+      'Aggregating sources...',
+      'Comparing prices across retailers...',
+      'Building answer...',
+    ]
+    let idx = 0
+    const stepTimer = setInterval(() => {
+      setSearchStep(steps[idx])
+      idx = (idx + 1) % steps.length
+    }, 800)
 
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`)
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`)
       if (res.ok) {
-        const data = await res.json()
-        if (data.suppliers) {
-          setSuppliers(data.suppliers) // Always set, even if empty to clear old results
-          setInsight(data.insight)
-          setSources(data.sources || [])
-          setSelectedCategory('All')
-          setSelectedRegion('All')
-        }
+        const result = await res.json()
+        setData(result)
       }
-    } catch (err) {
-      console.error("Search failed:", err)
-    } finally {
-      clearInterval(stepInterval)
-      setLoading(false)
-      setSearchStep('')
-    }
+    } catch(e) {}
+
+    clearInterval(stepTimer)
+    setSearchStep('')
+    setLoading(false)
   }
 
-  function toggleShortlist(id: string) {
-    setSuppliers(prev => prev.map(s => s.id === id ? { ...s, shortlisted: !s.shortlisted } : s))
+  const getDomain = (url: string) => {
+    try { return new URL(url).hostname.replace('www.', '') } catch { return url }
   }
 
-  function exportCSV() {
-    const rows = [
-      ['Name','Country','Category','Score','Price','Lead Time','Rating','Verified'],
-      ...filtered.map(s => [s.name, s.country, s.category, s.score, s.price, s.leadTime, s.rating, s.verified])
-    ]
-    const csv = rows.map(r => r.join(',')).join('\n')
-    const blob = new Blob([csv], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a'); a.href = url; a.download = 'suppliers.csv'; a.click()
+  // Landing state — no search yet
+  if (!hasSearched) {
+    return (
+      <div className="min-h-screen w-full bg-[var(--bg-0)] flex flex-col items-center justify-center p-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl text-center">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-indigo-500/20">
+              <Sparkles className="w-8 h-8 text-white" />
+            </div>
+          </div>
+          <h1 className="text-4xl lg:text-5xl font-black text-[var(--text-primary)] tracking-tight mb-3">Global Search</h1>
+          <p className="text-sm text-[var(--text-secondary)] opacity-40 mb-10">Search anything — products, prices, comparisons, knowledge. Powered by real-time web data.</p>
+
+          <form onSubmit={(e) => { e.preventDefault(); handleSearch() }} className="relative mb-10">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] opacity-30" size={22} />
+            <input
+              ref={inputRef}
+              type="text" value={query} onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search anything... (e.g. mango, iPhone 16, best laptops 2025)"
+              className="w-full pl-16 pr-6 py-6 rounded-2xl bg-[var(--bg-1)] border border-[var(--border)] text-lg text-[var(--text-primary)] outline-none focus:border-indigo-500/50 focus:shadow-xl focus:shadow-indigo-500/5 transition-all shadow-lg"
+            />
+            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all">
+              Search
+            </button>
+          </form>
+
+          <div className="flex flex-wrap justify-center gap-2">
+            {['iPhone 16 Pro', 'best laptops 2025', 'mango nutrition', 'Tesla Model Y', 'Nintendo Switch 2', 'Sony WH-1000XM5'].map(suggestion => (
+              <button
+                key={suggestion}
+                onClick={() => { setQuery(suggestion); handleSearch(suggestion) }}
+                className="px-4 py-2 bg-[var(--bg-1)] border border-[var(--border)] rounded-xl text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-indigo-500/30 transition-all"
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+    )
   }
 
   return (
-    <div className="p-8 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-1">Supplier <span className="gradient-text">Search</span></h1>
-          <p className="text-[var(--text-secondary)] opacity-40 text-sm">AI-powered global supplier discovery and ranking</p>
-        </div>
-        <div className="flex gap-2">
-          <button onClick={exportCSV} className="btn-secondary flex items-center gap-2">
-            <Download className="w-4 h-4" /> Export CSV
+    <div className="min-h-screen w-full bg-[var(--bg-0)] p-4 lg:p-8 font-sans custom-scrollbar overflow-y-auto pb-20">
+      {/* Search Bar — sticky top */}
+      <div className="sticky top-0 z-30 bg-[var(--bg-0)] pb-4 pt-2 lg:pt-0">
+        <form onSubmit={(e) => { e.preventDefault(); handleSearch() }} className="max-w-3xl mx-auto relative">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] opacity-30" size={20} />
+          <input
+            ref={inputRef}
+            type="text" value={query} onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search anything..."
+            className="w-full pl-14 pr-28 py-4 rounded-2xl bg-[var(--bg-1)] border border-[var(--border)] text-sm text-[var(--text-primary)] outline-none focus:border-indigo-500/50 transition-all shadow-lg"
+          />
+          <button type="submit" disabled={loading} className="absolute right-3 top-1/2 -translate-y-1/2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest text-[9px] transition-all disabled:opacity-50">
+            {loading ? <Loader2 className="animate-spin" size={14} /> : 'Search'}
           </button>
-          <button className="btn-primary flex items-center gap-2">
-            <Plus className="w-4 h-4" /> Add Supplier
-          </button>
-        </div>
+        </form>
       </div>
 
-      <div className="flex flex-col gap-3 mb-8 bg-[var(--bg-2)] p-6 rounded-[2rem] border border-[var(--border)] shadow-xl relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-3xl rounded-full" />
-        <div className="flex gap-3 relative z-10">
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-secondary)] opacity-40 focus-within:text-indigo-400 transition-colors" />
-            <input
-              id="supplier-search-input"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSearch()}
-              placeholder="What are you looking for? (e.g., CNC aluminum enclosures, 5000 units)"
-              className="w-full bg-[var(--bg-1)] border border-[var(--border)] text-[var(--text-primary)] pl-12 pr-4 py-4 rounded-2xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all placeholder:text-[var(--text-secondary)] placeholder:opacity-30 text-lg shadow-inner"
-            />
+      {/* Loading State */}
+      {loading && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-3xl mx-auto mt-10">
+          <div className="flex items-center gap-4 p-6 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl">
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
+              <Loader2 className="animate-spin text-indigo-400" size={20} />
+            </div>
+            <div>
+              <div className="text-sm font-bold text-indigo-400 mb-1">{searchStep || 'Searching...'}</div>
+              <div className="flex gap-1">
+                <span className="w-1 h-1 bg-indigo-400 rounded-full animate-bounce" />
+                <span className="w-1 h-1 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
+                <span className="w-1 h-1 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
+              </div>
+            </div>
           </div>
-          <button id="supplier-search-btn" onClick={handleSearch} disabled={loading}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 rounded-2xl transition-all shadow-lg shadow-indigo-500/20 disabled:opacity-50 flex items-center gap-3">
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
-            {loading ? 'Thinking...' : 'Analyze'}
-          </button>
-        </div>
-        
-        <div className="flex items-center gap-6 px-2">
-            <button 
-              onClick={() => setIsDeepSearch(!isDeepSearch)}
-              className="flex items-center gap-2 group/btn"
-            >
-              <div className={`w-10 h-5 rounded-full transition-all relative ${isDeepSearch ? 'bg-indigo-500' : 'bg-[var(--bg-1)] border border-[var(--border)]'}`}>
-                <motion.div 
-                  animate={{ x: isDeepSearch ? 20 : 2 }}
-                  className={`absolute top-1 w-3 h-3 rounded-full ${isDeepSearch ? 'bg-white' : 'bg-[var(--text-secondary)] opacity-40'}`} 
-                />
-              </div>
-              <span className={`text-[10px] font-bold uppercase tracking-widest ${isDeepSearch ? 'text-indigo-400' : 'text-[var(--text-secondary)] opacity-30'}`}>Deep Web Search</span>
-            </button>
-            <div className="h-4 w-[1px] bg-[var(--border)]" />
-            <div className="flex items-center gap-2">
-               <Globe className="w-3.5 h-3.5 text-emerald-400" />
-               <span className="text-[10px] font-bold text-[var(--text-secondary)] opacity-30 uppercase tracking-widest">Alibaba, Made-In-China, ThomasNet Active</span>
-            </div>
-        </div>
-      </div>
+        </motion.div>
+      )}
 
-      {/* Perplexity AI Insights Section */}
-      <AnimatePresence mode="wait">
-        {loading && searchStep && (
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-            className="mb-8 p-8 bg-indigo-500/5 border border-indigo-500/20 rounded-[2.5rem] flex items-start gap-4 shadow-sm"
-          >
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center shrink-0">
-               <Cpu className="w-6 h-6 text-indigo-400 animate-pulse" />
-            </div>
-            <div className="space-y-2">
-              <div className="text-sm font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-2">
-                Curating Intelligence <span className="flex gap-1"><span className="w-1 h-1 bg-indigo-400 rounded-full animate-bounce" /><span className="w-1 h-1 bg-indigo-400 rounded-full animate-bounce [animation-delay:0.2s]" /><span className="w-1 h-1 bg-indigo-400 rounded-full animate-bounce [animation-delay:0.4s]" /></span>
-              </div>
-              <div className="text-[var(--text-primary)] text-lg font-medium opacity-80">{searchStep}</div>
-            </div>
-          </motion.div>
-        )}
+      {/* Results */}
+      {data && !loading && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-5xl mx-auto mt-6 space-y-6">
 
-        {!loading && insight && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            className="mb-10 bg-[var(--bg-2)] border border-[var(--border)] rounded-[3rem] p-10 shadow-soft relative overflow-hidden"
-          >
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-20" />
-            
-            <div className="flex flex-col lg:flex-row gap-10">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
-                    <Zap className="w-5 h-5" />
+          {/* AI Answer Card */}
+          {data.abstract && (
+            <div className="bg-[var(--bg-1)] border border-[var(--border)] rounded-[2rem] p-6 lg:p-8 shadow-lg">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                  <Sparkles className="text-white" size={16} />
+                </div>
+                <div className="text-sm font-black text-[var(--text-primary)]">Answer</div>
+                <div className="text-[9px] font-bold text-[var(--text-secondary)] opacity-30 uppercase tracking-widest">
+                  Source: {data.abstractSource}
+                </div>
+              </div>
+
+              <div className="flex flex-col lg:flex-row gap-6">
+                <div className="flex-1">
+                  <h2 className="text-2xl font-black text-[var(--text-primary)] tracking-tight mb-4">{data.heading}</h2>
+                  <p className="text-sm text-[var(--text-primary)] opacity-80 leading-relaxed">{data.abstract}</p>
+                  {data.abstractUrl && (
+                    <a href={data.abstractUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 mt-4 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors">
+                      Read more on {data.abstractSource} <ExternalLink size={12} />
+                    </a>
+                  )}
+                </div>
+                {data.image && (
+                  <div className="w-full lg:w-48 shrink-0">
+                    <img src={data.image} alt={data.heading} className="w-full rounded-2xl object-cover border border-[var(--border)]" />
                   </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-[var(--text-primary)]">ProcureAI Analysis</h2>
-                    <p className="text-[10px] font-bold text-[var(--text-secondary)] opacity-40 uppercase tracking-widest">Direct Web Insight</p>
-                  </div>
-                </div>
-                
-                <div className="text-[var(--text-primary)] text-lg leading-relaxed mb-8 opacity-90 font-medium">
-                  {insight}
-                </div>
-                
-                <div className="flex flex-wrap gap-2">
-                    {sources.map((s, i) => (
-                        <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--bg-1)] border border-[var(--border)] text-[10px] font-bold text-[var(--text-secondary)] hover:text-indigo-400 transition-colors cursor-pointer">
-                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500/40" />
-                            {s}
-                        </div>
-                    ))}
-                    <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 text-indigo-400 text-[10px] font-bold hover:bg-indigo-500/20 transition-all uppercase tracking-widest">
-                        <Share2 className="w-3 h-3" /> Share Report
-                    </button>
-                </div>
+                )}
               </div>
 
-              <div className="w-full lg:w-72 space-y-4">
-                <div className="p-6 rounded-[2rem] bg-emerald-500/5 border border-emerald-500/10">
-                   <div className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                     <ShieldCheck className="w-3.5 h-3.5" /> Market Trust
-                   </div>
-                   <div className="text-2xl font-bold text-[var(--text-primary)] mb-1">High Accuracy</div>
-                   <p className="text-[10px] text-[var(--text-secondary)] opacity-40 leading-relaxed italic">Search results verified against supplier database and live listings.</p>
-                </div>
-                <div className="p-6 rounded-[2rem] bg-indigo-500/5 border border-indigo-500/10">
-                   <div className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                     <Activity className="w-3.5 h-3.5" /> Price Volatility
-                   </div>
-                   <div className="text-2xl font-bold text-[var(--text-primary)] mb-1">± 4.2%</div>
-                   <p className="text-[10px] text-[var(--text-secondary)] opacity-40 leading-relaxed italic">Standard variance detected for this category over the last 30 days.</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Filters row 1 */}
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <div className="flex bg-[var(--bg-1)] p-1 rounded-full border border-[var(--border)]">
-          {categories.map(c => (
-            <button key={c} id={`filter-${c}`}
-              onClick={() => setSelectedCategory(c)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-150 ${
-                selectedCategory === c ? 'bg-indigo-500/20 text-indigo-300' : 'text-[var(--text-secondary)] opacity-40 hover:text-[var(--text-primary)]'
-              }`}>{c}</button>
-          ))}
-        </div>
-        <div className="flex bg-[var(--bg-1)] p-1 rounded-full border border-[var(--border)]">
-          {regions.map(r => (
-            <button key={r} onClick={() => setSelectedRegion(r)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                selectedRegion === r ? 'bg-indigo-500/20 text-indigo-300' : 'text-[var(--text-secondary)] opacity-40 hover:text-[var(--text-primary)]'
-              }`}>{r}</button>
-          ))}
-        </div>
-        <div className="ml-auto flex items-center gap-3">
-          <select value={sortOrder} onChange={e => setSortOrder(e.target.value)}
-            className="input-dark py-1.5 text-xs w-auto m-0">
-            <option value="score">Sort by Score</option>
-            <option value="price_low">Price: Low to High</option>
-            <option value="price_high">Price: High to Low</option>
-            <option value="lead_time">Lead Time: Fastest</option>
-          </select>
-          <button
-            onClick={() => setShortlistOnly(!shortlistOnly)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-150 flex items-center gap-1.5 ${
-              shortlistOnly ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-[var(--bg-1)] text-[var(--text-secondary)] opacity-40 border border-[var(--border)] shadow-inner'
-            }`}>
-            <Star className="w-3 h-3" /> Shortlisted
-          </button>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-3 mb-6">
-        <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Global Comprehensive Crawl Active</span>
-        </div>
-        <div className="text-xs text-[var(--text-secondary)] opacity-40 font-bold uppercase tracking-tighter">
-            {sorted.length} Global results retrieved from 100+ sources
-        </div>
-      </div>
-      <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <AnimatePresence>
-          {sorted.map(s => (
-            <motion.div key={s.id} layout
-              initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.2 }}
-              className="group overflow-hidden bg-[var(--bg-2)] border border-[var(--border)] rounded-2xl hover:border-[var(--brand)]/40 transition-all shadow-soft">
-
-              {/* Product Image */}
-              <div className="relative aspect-square bg-[var(--bg-1)] overflow-hidden">
-                {s.url ? (
-                  <a href={s.url} target="_blank" rel="noreferrer" className="block w-full h-full cursor-alias relative group/img">
-                    {s.imageUrl && s.imageUrl.startsWith('http') ? (
-                      <img src={s.imageUrl} alt={s.productName || s.name} className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-700" />
-                    ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center bg-[var(--bg-1)] text-[var(--text-secondary)]">
-                        <div className="text-[10px] uppercase tracking-widest font-bold opacity-30">No Product Image</div>
+              {/* Infobox */}
+              {data.infobox.length > 0 && (
+                <div className="mt-6 pt-6 border-t border-[var(--border)]">
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                    {data.infobox.map((item: any, i: number) => (
+                      <div key={i} className="p-3 bg-[var(--bg-0)] rounded-xl border border-[var(--border)]">
+                        <div className="text-[9px] font-black text-[var(--text-secondary)] opacity-30 uppercase tracking-widest mb-1">{item.label}</div>
+                        <div className="text-xs font-bold text-[var(--text-primary)] truncate">{item.value}</div>
                       </div>
-                    )}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-                      <span className="text-[var(--text-primary)] text-xs font-bold px-3 py-1.5 bg-indigo-500 rounded-full shadow-xl">VIEW ON SITE</span>
-                    </div>
-                  </a>
-                ) : (
-                  s.imageUrl && s.imageUrl.startsWith('http') ? (
-                    <img src={s.imageUrl} alt={s.productName || s.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center bg-[var(--bg-1)] text-[var(--text-secondary)]">
-                      <div className="text-[10px] uppercase tracking-widest font-bold opacity-30">No Product Image</div>
-                    </div>
-                  )
-                )}
-                {s.shortlisted && (
-                  <div className="absolute top-3 right-3">
-                    <span className="bg-amber-500/90 text-amber-950 px-2 py-1 rounded-md text-[10px] font-bold shadow-lg flex items-center gap-1 backdrop-blur-md">
-                      <Star className="w-3 h-3 fill-amber-950" /> Saved
-                    </span>
-                  </div>
-                )}
-                <div className="absolute bottom-3 left-3 flex gap-1.5">
-                  <span className="bg-black/60 backdrop-blur-md border border-[var(--border)] text-[var(--text-primary)] px-2 py-1 rounded-md text-[10px] font-medium items-center flex gap-1">
-                    {s.flag} {s.country}
-                  </span>
-                  {s.verified && (
-                    <span className="bg-[#10b981]/20 text-[#10b981] border border-[#10b981]/30 backdrop-blur-md px-2 py-1 rounded-md text-[10px] font-bold items-center flex gap-1">
-                       Verified
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Details */}
-              <div className="p-4">
-                <div className="text-sm font-semibold text-[var(--text-primary)] line-clamp-2 leading-snug mb-3 min-h-[40px] group-hover:text-indigo-300 transition-colors">
-                  {s.url ? (
-                    <a href={s.url} target="_blank" rel="noreferrer" className="hover:underline">
-                      {s.productName || "Custom Order Request Form / OEM Tooling & Parts Assembly"}
-                    </a>
-                  ) : (
-                    s.productName || "Custom Order Request Form / OEM Tooling & Parts Assembly"
-                  )}
-                </div>
-                
-                <div className="flex items-end gap-2 mb-1">
-                  <span className="text-base font-bold text-indigo-400 leading-none">
-                    {s.rawPrice || `US$${s.price.toFixed(2)}`}
-                  </span>
-                  {!s.rawPrice && <span className="text-xs text-[var(--text-secondary)] opacity-40 font-medium pb-0.5">/ Piece</span>}
-                </div>
-                <div className="text-xs text-[var(--text-secondary)] opacity-40 mb-3 font-medium">
-                  {s.moq} Units <span className="text-[var(--text-secondary)] opacity-20">(MOQ)</span>
-                </div>
-
-                <div className="h-[1px] bg-[var(--bg-1)] w-full mb-3" />
-
-                <div className="flex items-center justify-between gap-2 mb-4">
-                  {s.url ? (
-                    <a href={s.url} target="_blank" rel="noreferrer" className="text-xs text-[var(--text-secondary)] opacity-40 hover:text-[var(--text-primary)] flex items-center gap-1.5 transition-colors truncate font-medium">
-                      <ExternalLink className="w-3.5 h-3.5 shrink-0" />
-                      <span className="truncate">{s.name}</span>
-                    </a>
-                  ) : (
-                    <span className="text-xs text-[var(--text-secondary)] opacity-40 truncate flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 shrink-0" />
-                      <span className="truncate">{s.name}</span>
-                    </span>
-                  )}
-                  
-                  <div className="flex items-center gap-1 bg-[var(--bg-1)] px-1.5 py-0.5 rounded text-[10px] text-[var(--text-primary)] font-bold shrink-0 border border-[var(--border)]">
-                    {s.rating} ★
+                    ))}
                   </div>
                 </div>
+              )}
+            </div>
+          )}
 
-                {/* Actions */}
-                <div className="flex gap-2 mt-auto">
-                  <button onClick={() => toggleShortlist(s.id)}
-                    className={`flex items-center justify-center p-2 rounded-xl transition-all ${
-                      s.shortlisted ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'btn-secondary text-[var(--text-secondary)] opacity-40 border border-[var(--border)]'
-                    }`}>
-                    <Star className={`w-4 h-4 ${s.shortlisted ? 'fill-amber-400' : ''}`} />
-                  </button>
-                  <button className="flex-1 btn-primary text-xs py-2 rounded-xl font-semibold shadow-xl shadow-indigo-500/20">
-                    Send Inquiry
-                  </button>
-                  <button className="flex-1 btn-secondary bg-white/5 text-xs py-2 rounded-xl font-medium border border-white/10">
-                    Chat Now
-                  </button>
+          {/* Shopping Links */}
+          <div className="bg-[var(--bg-1)] border border-[var(--border)] rounded-[2rem] p-6 lg:p-8">
+            <div className="flex items-center gap-3 mb-5">
+              <ShoppingCart className="text-amber-400" size={20} />
+              <div className="text-sm font-black text-[var(--text-primary)]">Shop &amp; Compare</div>
+              <div className="text-[9px] font-bold text-[var(--text-secondary)] opacity-30 uppercase tracking-widest">
+                Live price comparison across retailers
+              </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {data.shoppingLinks.map(link => (
+                <a
+                  key={link.name}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-4 bg-[var(--bg-0)] border border-[var(--border)] rounded-xl hover:border-indigo-500/30 hover:bg-[var(--bg-2)] transition-all group"
+                >
+                  <span className="text-2xl">{link.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-black text-[var(--text-primary)] truncate">{link.name}</div>
+                    <div className="text-[9px] text-[var(--text-secondary)] opacity-30">Search results →</div>
+                  </div>
+                  <ExternalLink size={14} className="text-[var(--text-secondary)] opacity-20 group-hover:opacity-60 transition-opacity shrink-0" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Web Results */}
+          {data.webResults.length > 0 && (
+            <div className="bg-[var(--bg-1)] border border-[var(--border)] rounded-[2rem] p-6 lg:p-8">
+              <div className="flex items-center gap-3 mb-5">
+                <Globe className="text-emerald-400" size={20} />
+                <div className="text-sm font-black text-[var(--text-primary)]">Web Results</div>
+                <div className="text-[9px] font-bold text-[var(--text-secondary)] opacity-30 uppercase tracking-widest">
+                  {data.webResults.length} sources found
                 </div>
               </div>
-            </motion.div>
+              <div className="space-y-4">
+                {data.webResults.map((result, i) => (
+                  <motion.a
+                    key={i}
+                    href={result.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.03 }}
+                    className="block p-4 bg-[var(--bg-0)] border border-[var(--border)] rounded-xl hover:border-indigo-500/30 hover:bg-[var(--bg-2)] transition-all group"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <img src={`https://www.google.com/s2/favicons?domain=${getDomain(result.url)}&sz=32`} alt="" className="w-4 h-4 rounded" />
+                      <span className="text-[10px] font-bold text-[var(--text-secondary)] opacity-40 truncate">{getDomain(result.url)}</span>
+                    </div>
+                    <h3 className="text-sm font-bold text-indigo-400 group-hover:text-indigo-300 transition-colors mb-1 line-clamp-1">{result.title}</h3>
+                    <p className="text-xs text-[var(--text-secondary)] opacity-50 line-clamp-2 leading-relaxed">{result.snippet}</p>
+                  </motion.a>
+                ))}
+              </div>
+            </div>
+          )}
 
-          ))}
-        </AnimatePresence>
-      </motion.div>
+          {/* Related Topics */}
+          {data.relatedTopics.length > 0 && (
+            <div className="bg-[var(--bg-1)] border border-[var(--border)] rounded-[2rem] p-6 lg:p-8">
+              <div className="flex items-center gap-3 mb-5">
+                <BookOpen className="text-rose-400" size={20} />
+                <div className="text-sm font-black text-[var(--text-primary)]">Related Topics</div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {data.relatedTopics.map((topic, i) => (
+                  <button
+                    key={i}
+                    onClick={() => { setQuery(topic.text.split(' - ')[0]); handleSearch(topic.text.split(' - ')[0]) }}
+                    className="text-left p-4 bg-[var(--bg-0)] border border-[var(--border)] rounded-xl hover:border-indigo-500/30 hover:bg-[var(--bg-2)] transition-all flex items-center gap-3"
+                  >
+                    <ChevronRight size={14} className="text-indigo-400 shrink-0" />
+                    <span className="text-xs text-[var(--text-primary)] line-clamp-2">{topic.text}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </motion.div>
+      )}
+
+      {/* No results state */}
+      {data && !loading && !data.abstract && data.webResults.length === 0 && (
+        <div className="max-w-3xl mx-auto mt-20 text-center">
+          <Search size={48} className="mx-auto mb-4 text-[var(--text-secondary)] opacity-10" />
+          <p className="text-lg font-bold text-[var(--text-secondary)] opacity-30">No results found for &ldquo;{data.query}&rdquo;</p>
+          <p className="text-sm text-[var(--text-secondary)] opacity-20 mt-2">Try a different search term</p>
+        </div>
+      )}
     </div>
   )
 }

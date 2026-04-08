@@ -1,64 +1,113 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const AG_BASE = process.env.ANTIGRAVITY_API_URL || 'http://127.0.0.1:8001'
-
-console.log('API Route Init: AG_BASE is', AG_BASE)
-
-// Mock data for when backend is offline
-const MOCK_SUPPLIERS = [
-  { id:'1', name:'Shenzhen TechParts Co.', country:'China', flag:'🇨🇳', category:'Electronics', score:94, price:72,  leadTime:14, rating:4.8, verified:true, shortlisted:false },
-  { id:'2', name:'Flex Ltd. Singapore',   country:'Singapore', flag:'🇸🇬', category:'EMS', score:91, price:89,  leadTime:18, rating:4.7, verified:true, shortlisted:false },
-  { id:'3', name:'Jabil Circuit Inc.',    country:'USA', flag:'🇺🇸', category:'Manufacturing', score:88, price:114, leadTime:21, rating:4.6, verified:true, shortlisted:false },
-  { id:'4', name:'Foxconn Industrial',    country:'China', flag:'🇨🇳', category:'Assembly', score:86, price:68,  leadTime:12, rating:4.5, verified:true, shortlisted:false },
-  { id:'5', name:'Celestica Toronto',     country:'Canada', flag:'🇨🇦', category:'Electronics', score:85, price:97,  leadTime:19, rating:4.4, verified:true, shortlisted:false },
-]
+export const dynamic = 'force-dynamic'
+export const maxDuration = 30
 
 export async function GET(req: NextRequest) {
   const query = req.nextUrl.searchParams.get('q') || ''
-  const targetUrl = `${AG_BASE}/ag/supplier-search`
-
-  console.log('GET /api/search -> Hitting Backend:', targetUrl, 'with query:', query)
+  if (!query) return NextResponse.json({ error: 'No query provided' }, { status: 400 })
 
   try {
-    const res = await fetch(targetUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, limit: 500 }),
-      signal: AbortSignal.timeout(60000), // 60s for deep web search
+    // 1. DuckDuckGo Instant Answers API (free, no key)
+    const ddgRes = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`, { next: { revalidate: 0 } })
+    const ddgData = await ddgRes.json()
+
+    // 2. DuckDuckGo HTML search for web results
+    const ddgHtmlRes = await fetch(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
     })
-    
-    if (res.ok) {
-      const data = await res.json()
-      console.log('Search API Success:', data.suppliers?.length, 'results from', data.source)
-      return NextResponse.json(data)
-    } else {
-      console.error('Search API Failed with status:', res.status, res.statusText)
+    const ddgHtml = await ddgHtmlRes.text()
+
+    // Parse web results from HTML
+    const webResults = parseWebResults(ddgHtml)
+
+    // 3. Wikipedia API for detailed info
+    let wikiSummary = ''
+    let wikiImage = ''
+    if (ddgData.AbstractURL || ddgData.Abstract) {
+      wikiSummary = ddgData.Abstract || ''
+      wikiImage = ddgData.Image ? `https://duckduckgo.com${ddgData.Image}` : ''
     }
+    // If no DDG abstract, try Wikipedia directly
+    if (!wikiSummary) {
+      try {
+        const wikiRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`)
+        if (wikiRes.ok) {
+          const wikiData = await wikiRes.json()
+          wikiSummary = wikiData.extract || ''
+          wikiImage = wikiData.thumbnail?.source || ''
+        }
+      } catch(e) {}
+    }
+
+    // 4. Shopping comparison links — real retailer search URLs
+    const shoppingLinks = [
+      { name: 'Amazon', url: `https://www.amazon.com/s?k=${encodeURIComponent(query)}`, icon: '🛒', color: '#FF9900' },
+      { name: 'Walmart', url: `https://www.walmart.com/search?q=${encodeURIComponent(query)}`, icon: '🏪', color: '#0071CE' },
+      { name: 'eBay', url: `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(query)}`, icon: '🏷️', color: '#E53238' },
+      { name: 'Best Buy', url: `https://www.bestbuy.com/site/searchpage.jsp?st=${encodeURIComponent(query)}`, icon: '🖥️', color: '#0046BE' },
+      { name: 'Target', url: `https://www.target.com/s?searchTerm=${encodeURIComponent(query)}`, icon: '🎯', color: '#CC0000' },
+      { name: 'Alibaba', url: `https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(query)}`, icon: '🌐', color: '#FF6A00' },
+      { name: 'AliExpress', url: `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(query)}`, icon: '📦', color: '#E43225' },
+      { name: 'Google Shopping', url: `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(query)}`, icon: '🔍', color: '#4285F4' },
+    ]
+
+    // 5. Related topics from DDG
+    const relatedTopics = (ddgData.RelatedTopics || [])
+      .filter((t: any) => t.Text && t.FirstURL)
+      .slice(0, 8)
+      .map((t: any) => ({
+        text: t.Text,
+        url: t.FirstURL,
+      }))
+
+    // 6. Infobox data
+    const infobox = ddgData.Infobox?.content || []
+
+    return NextResponse.json({
+      query,
+      abstract: wikiSummary,
+      abstractSource: ddgData.AbstractSource || 'Wikipedia',
+      abstractUrl: ddgData.AbstractURL || '',
+      image: wikiImage,
+      heading: ddgData.Heading || query,
+      type: ddgData.Type || '',
+      webResults,
+      shoppingLinks,
+      relatedTopics,
+      infobox: infobox.slice(0, 10),
+      timestamp: new Date().toISOString(),
+    })
   } catch (error: any) {
-    console.error('Search API Critical Error:', error.message || error)
+    console.error('Search API error:', error.message)
+    return NextResponse.json({ error: 'Search failed', message: error.message }, { status: 500 })
   }
-
-  const filtered = query
-    ? MOCK_SUPPLIERS.filter(s =>
-        s.name.toLowerCase().includes(query.toLowerCase()) ||
-        s.country.toLowerCase().includes(query.toLowerCase()) ||
-        s.category.toLowerCase().includes(query.toLowerCase()))
-    : MOCK_SUPPLIERS
-
-  return NextResponse.json({ suppliers: filtered, total: filtered.length, source: 'mock' })
 }
 
-export async function POST(req: NextRequest) {
-  const body = await req.json()
-  try {
-    const res = await fetch(`${AG_BASE}/ag/supplier-search`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(15000),
-    })
-    if (res.ok) return NextResponse.json(await res.json())
-  } catch { /* fallback */ }
+function parseWebResults(html: string): { title: string; url: string; snippet: string }[] {
+  const results: { title: string; url: string; snippet: string }[] = []
+  
+  // Parse result snippets from DDG HTML response
+  const resultRegex = /class="result__a"[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>.*?class="result__snippet"[^>]*>(.*?)<\/span>/gs
+  let match
+  let count = 0
+  
+  while ((match = resultRegex.exec(html)) !== null && count < 15) {
+    let url = match[1]
+    // DDG wraps URLs in redirect — extract the actual URL
+    const uddgMatch = url.match(/uddg=([^&]+)/)
+    if (uddgMatch) {
+      url = decodeURIComponent(uddgMatch[1])
+    }
+    
+    const title = match[2].replace(/<[^>]*>/g, '').trim()
+    const snippet = match[3].replace(/<[^>]*>/g, '').trim()
+    
+    if (title && url && !url.includes('duckduckgo.com')) {
+      results.push({ title, url, snippet })
+      count++
+    }
+  }
 
-  return NextResponse.json({ suppliers: MOCK_SUPPLIERS, total: MOCK_SUPPLIERS.length, source: 'mock' })
+  return results
 }
