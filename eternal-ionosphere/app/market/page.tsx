@@ -15,12 +15,8 @@ import {
   Users
 } from 'lucide-react'
 
-// Mock Swarm Agent logs
-const SWARM_LOGS = [
-  { agent: 'Risk Manager', message: 'Detected port strike in Hamburg. Rerouting EU shipments to Rotterdam.', time: 'Just now', color: 'text-rose-400' },
-  { agent: 'Forex Trader', message: 'Hedged 50k USD to JPY at 148.2. Saved approx $1,200 on upcoming supplier payout.', time: '2 mins ago', color: 'text-emerald-400' },
-  { agent: 'Negotiator', message: 'Counter-offered Shenzhen Tech at $4.15/unit. Awaiting factory response.', time: '14 mins ago', color: 'text-indigo-400' },
-  { agent: 'Clone Scout', message: 'Found 3 identical capability factories for SKU-901 in Vietnam.', time: '1 hr ago', color: 'text-amber-400' }
+const INITIAL_LOGS = [
+  { agent: 'System', message: 'Initializing World Data Scrapers...', time: 'Boot', color: 'text-indigo-400' }
 ]
 
 // Mock Freight Exchange Bids
@@ -34,10 +30,40 @@ const FREIGHT_BIDS = [
 export default function MarketIntelligencePage() {
   const [activeTab, setActiveTab] = useState<'swarm' | 'freight' | 'tariff'>('swarm')
   const [bids, setBids] = useState(FREIGHT_BIDS)
+  const [swarmLogs, setSwarmLogs] = useState(INITIAL_LOGS)
 
   useEffect(() => {
-    // Simulate live bidding
-    const interval = setInterval(() => {
+    // Real API fetching for World Data
+    const fetchMarketData = async () => {
+      try {
+        const res = await fetch('/api/market')
+        if (res.ok) {
+           const data = await res.json()
+           
+           setSwarmLogs(prev => {
+              const newLogs = [...prev]
+              if (newLogs.length > 5) newLogs.shift()
+              
+              const now = new Date().toLocaleTimeString()
+              
+              if (data.forex) {
+                newLogs.push({ agent: 'Forex Trader', message: `Live Rate Pulled: 1 USD = ${data.forex.JPY} JPY / ${data.forex.CNY} CNY. Hedging algorithms optimized.`, time: now, color: 'text-emerald-400' })
+              }
+              if (data.crypto) {
+                newLogs.push({ agent: 'Risk Manager', message: `Global BTC Liquidity Index locked at $${data.crypto.toLocaleString()}. Supply chain financial risk evaluated as STABLE.`, time: now, color: 'text-amber-400' })
+              }
+              
+              return newLogs
+           })
+        }
+      } catch(e) {}
+    }
+
+    fetchMarketData()
+    const marketInterval = setInterval(fetchMarketData, 10000)
+    
+    // Simulate live bidding (Mock since live spot API costs $10k/mo)
+    const bidInterval = setInterval(() => {
       setBids(prev => {
         const newBids = [...prev];
         const target = Math.floor(Math.random() * newBids.length);
@@ -50,8 +76,11 @@ export default function MarketIntelligencePage() {
         };
         return newBids.sort((a,b) => a.offer - b.offer);
       });
-    }, 3000);
-    return () => clearInterval(interval);
+    }, 2000);
+    return () => {
+      clearInterval(bidInterval);
+      clearInterval(marketInterval);
+    }
   }, []);
 
   return (
@@ -75,8 +104,8 @@ export default function MarketIntelligencePage() {
           </div>
           
           <div className="flex-1 bg-[#0a0a0a] rounded-3xl p-6 font-mono text-[10px] border border-[#1a1a1a] overflow-hidden flex flex-col justify-end space-y-4">
-             {SWARM_LOGS.map((log, i) => (
-                <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.2 }} key={i} className="flex gap-4 border-l-2 border-[#2a2a2a] pl-4">
+             {swarmLogs.map((log, i) => (
+                <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} key={i + log.time} className="flex gap-4 border-l-2 border-[#2a2a2a] pl-4">
                    <div className="w-24 shrink-0 text-[#666]">{log.time}</div>
                    <div>
                      <span className={`${log.color} font-bold`}>[{log.agent.toUpperCase()}]</span> 

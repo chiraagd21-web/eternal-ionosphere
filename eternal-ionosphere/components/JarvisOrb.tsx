@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mic, MicOff, Loader2 } from 'lucide-react'
 
@@ -8,27 +8,54 @@ export function JarvisOrb() {
   const [isListening, setIsListening] = useState(false)
   const [transcript, setTranscript] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
+  const recognitionRef = useRef<any>(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        recognitionRef.current = new SpeechRecognition()
+        recognitionRef.current.continuous = false
+        recognitionRef.current.interimResults = true
+
+        recognitionRef.current.onresult = (event: any) => {
+          let targetText = ''
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            targetText += event.results[i][0].transcript
+          }
+          setTranscript(targetText)
+        }
+
+        recognitionRef.current.onend = () => {
+          setIsListening(false)
+          if (recognitionRef.current?.transcript?.length > 0) {
+              setIsProcessing(true)
+              setTimeout(() => {
+                 setIsProcessing(false)
+                 setTranscript('Processing complete. Connect an LLM API to execute: ' + recognitionRef.current.transcript)
+                 setTimeout(() => setTranscript(''), 4000)
+              }, 1500)
+          }
+        }
+      }
+    }
+  }, [])
 
   const toggleListen = () => {
     if (!isListening) {
-      setIsListening(true)
-      setTranscript('')
-      // Simulate listening for 3 seconds
-      setTimeout(() => {
-         setTranscript('zo, we are running low on cooling fans. Find 3 new suppliers in Taiwan, draft an RFQ for 5,000 units, and target 10% under our current price.')
-         setIsProcessing(true)
-         setIsListening(false)
-
-         setTimeout(() => {
-            setIsProcessing(false)
-            setTranscript('Workflow executed: 3 suppliers found. RFQs drafted at 10% under current market price. Awaiting your approval in the RFx Manager.')
-            
-            setTimeout(() => setTranscript(''), 6000)
-         }, 3000)
-
-      }, 3000)
+      if (recognitionRef.current) {
+         setTranscript('Listening...')
+         setIsListening(true)
+         setIsProcessing(false)
+         try {
+           recognitionRef.current.start()
+         } catch(e) {}
+      } else {
+         setTranscript('Microphone completely unsupported on this browser.')
+      }
     } else {
       setIsListening(false)
+      recognitionRef.current?.stop()
     }
   }
 
