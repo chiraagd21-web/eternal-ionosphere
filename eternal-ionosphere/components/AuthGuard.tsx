@@ -11,10 +11,16 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
   useEffect(() => {
+    if (process.env.NODE_ENV === 'development') return
+
     if (!loading && !user && pathname !== '/login') {
       router.push('/login')
     }
   }, [user, loading, pathname, router])
+
+  if (process.env.NODE_ENV === 'development') {
+    return <>{children}</>
+  }
 
   if (pathname === '/login') {
     return <>{children}</>

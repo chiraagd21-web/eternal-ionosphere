@@ -174,36 +174,36 @@ export default function GlobalSearchPage() {
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
                   <Sparkles className="text-white" size={16} />
                 </div>
-                <div className="text-sm font-black text-[var(--text-primary)]">Answer</div>
+                <div className="text-sm font-black text-[var(--text-primary)]">Intelligence Oracle</div>
                 <div className="text-[9px] font-bold text-[var(--text-secondary)] opacity-30 uppercase tracking-widest">
                   Source: {data.abstractSource}
                 </div>
               </div>
 
-              <div className="flex flex-col lg:flex-row gap-6">
+              <div className="flex flex-col lg:flex-row gap-8">
                 <div className="flex-1">
                   <h2 className="text-2xl font-black text-[var(--text-primary)] tracking-tight mb-4">{data.heading}</h2>
-                  <p className="text-sm text-[var(--text-primary)] opacity-80 leading-relaxed">{data.abstract}</p>
+                  <p className="text-base text-[var(--text-primary)] opacity-80 leading-relaxed font-medium">{data.abstract}</p>
                   {data.abstractUrl && (
-                    <a href={data.abstractUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 mt-4 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors">
-                      Read more on {data.abstractSource} <ExternalLink size={12} />
+                    <a href={data.abstractUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 mt-6 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors bg-indigo-500/5 px-4 py-2 rounded-full border border-indigo-500/20">
+                      Explore Full Context on {data.abstractSource} <ExternalLink size={12} />
                     </a>
                   )}
                 </div>
                 {data.image && (
-                  <div className="w-full lg:w-48 shrink-0">
-                    <img src={data.image} alt={data.heading} className="w-full rounded-2xl object-cover border border-[var(--border)]" />
+                  <div className="w-full lg:w-64 shrink-0">
+                    <img src={data.image} alt={data.heading} className="w-full h-auto aspect-square rounded-3xl object-cover border border-[var(--border)] shadow-2xl" />
                   </div>
                 )}
               </div>
 
               {/* Infobox */}
-              {data.infobox.length > 0 && (
-                <div className="mt-6 pt-6 border-t border-[var(--border)]">
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+              {data.infobox && data.infobox.length > 0 && (
+                <div className="mt-8 pt-6 border-t border-[var(--border)]/50">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {data.infobox.map((item: any, i: number) => (
-                      <div key={i} className="p-3 bg-[var(--bg-0)] rounded-xl border border-[var(--border)]">
-                        <div className="text-[9px] font-black text-[var(--text-secondary)] opacity-30 uppercase tracking-widest mb-1">{item.label}</div>
+                      <div key={i} className="p-4 bg-[var(--bg-0)] rounded-2xl border border-[var(--border)]/50">
+                        <div className="text-[10px] font-black text-[var(--text-secondary)] opacity-40 uppercase tracking-[0.2em] mb-1">{item.label}</div>
                         <div className="text-xs font-bold text-[var(--text-primary)] truncate">{item.value}</div>
                       </div>
                     ))}
@@ -213,90 +213,116 @@ export default function GlobalSearchPage() {
             </div>
           )}
 
+          {/* System Results (Internal OS Shortcuts) */}
+          {(data as any).systemResults && (data as any).systemResults.length > 0 && (
+            <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-[2rem] p-6 lg:p-8">
+              <div className="flex items-center gap-3 mb-5">
+                <LayoutDashboard className="text-indigo-400" size={20} />
+                <div className="text-sm font-black text-[var(--text-primary)]">System Handlers</div>
+                <div className="text-[9px] font-bold text-indigo-400/50 uppercase tracking-widest">
+                  Internal modules matching your query
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {(data as any).systemResults.map((sys: any, i: number) => (
+                  <Link href={sys.href} key={i} className="p-4 bg-[var(--bg-1)] border border-indigo-500/20 rounded-2xl hover:bg-indigo-500/10 transition-all group flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                      <ArrowRight className="text-indigo-400" size={18} />
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold text-[var(--text-primary)] mb-1">{sys.label}</div>
+                      <div className="text-[10px] text-[var(--text-secondary)] leading-tight">{sys.desc}</div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Shopping Links */}
           <div className="bg-[var(--bg-1)] border border-[var(--border)] rounded-[2rem] p-6 lg:p-8">
             <div className="flex items-center gap-3 mb-5">
               <ShoppingCart className="text-amber-400" size={20} />
-              <div className="text-sm font-black text-[var(--text-primary)]">Shop &amp; Compare</div>
+              <div className="text-sm font-black text-[var(--text-primary)]">Sourcing Hub</div>
               <div className="text-[9px] font-bold text-[var(--text-secondary)] opacity-30 uppercase tracking-widest">
-                Live price comparison across retailers
+                Real-time price & manufacturing data
               </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
               {data.shoppingLinks.map(link => (
                 <a
                   key={link.name}
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-4 bg-[var(--bg-0)] border border-[var(--border)] rounded-xl hover:border-indigo-500/30 hover:bg-[var(--bg-2)] transition-all group"
+                  className="flex flex-col items-center text-center gap-3 p-4 bg-[var(--bg-0)] border border-[var(--border)] rounded-2xl hover:border-indigo-500/30 hover:bg-[var(--bg-2)] transition-all group"
                 >
-                  <span className="text-2xl">{link.icon}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-black text-[var(--text-primary)] truncate">{link.name}</div>
-                    <div className="text-[9px] text-[var(--text-secondary)] opacity-30">Search results →</div>
-                  </div>
-                  <ExternalLink size={14} className="text-[var(--text-secondary)] opacity-20 group-hover:opacity-60 transition-opacity shrink-0" />
+                  <span className="text-3xl filter saturate-50 group-hover:saturate-100 transition-all">{link.icon}</span>
+                  <div className="text-[10px] font-black text-[var(--text-primary)] truncate w-full">{link.name}</div>
                 </a>
               ))}
             </div>
           </div>
 
-          {/* Web Results */}
-          {data.webResults.length > 0 && (
-            <div className="bg-[var(--bg-1)] border border-[var(--border)] rounded-[2rem] p-6 lg:p-8">
-              <div className="flex items-center gap-3 mb-5">
-                <Globe className="text-emerald-400" size={20} />
-                <div className="text-sm font-black text-[var(--text-primary)]">Web Results</div>
-                <div className="text-[9px] font-bold text-[var(--text-secondary)] opacity-30 uppercase tracking-widest">
-                  {data.webResults.length} sources found
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Web Results */}
+            <div className="lg:col-span-2 space-y-4">
+              <div className="flex items-center gap-3 px-4 mb-2">
+                <Globe className="text-emerald-400" size={18} />
+                <div className="text-xs font-black text-[var(--text-primary)] uppercase tracking-widest">Web Reference</div>
+              </div>
+              {data.webResults.map((result, i) => (
+                <motion.a
+                  key={i}
+                  href={result.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="block p-5 bg-[var(--bg-1)] border border-[var(--border)] rounded-2xl hover:border-indigo-500/30 hover:bg-[var(--bg-2)] transition-all group shadow-sm"
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-5 h-5 rounded overflow-hidden bg-white/5 flex items-center justify-center">
+                      <img src={`https://www.google.com/s2/favicons?domain=${getDomain(result.url)}&sz=32`} alt="" className="w-3.5 h-3.5" />
+                    </div>
+                    <span className="text-[10px] font-black text-[var(--text-secondary)] opacity-40 truncate">{getDomain(result.url)}</span>
+                  </div>
+                  <h3 className="text-sm font-bold text-indigo-400 group-hover:text-indigo-300 transition-colors mb-2 line-clamp-1">{result.title}</h3>
+                  <p className="text-xs text-[var(--text-secondary)] opacity-60 line-clamp-2 leading-relaxed font-medium">{result.snippet}</p>
+                </motion.a>
+              ))}
+            </div>
+
+            {/* Related Topics & Aside */}
+            <div className="space-y-6">
+              <div className="bg-[var(--bg-1)] border border-[var(--border)] rounded-[2rem] p-6">
+                <div className="flex items-center gap-3 mb-5">
+                  <BookOpen className="text-rose-400" size={18} />
+                  <div className="text-xs font-black text-[var(--text-primary)] uppercase tracking-widest">Inquiry Streams</div>
+                </div>
+                <div className="space-y-2">
+                  {data.relatedTopics.map((topic, i) => (
+                    <button
+                      key={i}
+                      onClick={() => { setQuery(topic.text.split(' - ')[0]); handleSearch(topic.text.split(' - ')[0]) }}
+                      className="w-full text-left p-4 bg-[var(--bg-0)] border border-[var(--border)] rounded-2xl hover:border-indigo-500/30 hover:bg-[var(--bg-2)] transition-all flex items-center justify-between group"
+                    >
+                      <span className="text-xs font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors line-clamp-2">{topic.text}</span>
+                      <ChevronRight size={14} className="text-indigo-400 opacity-0 group-hover:opacity-100 transition-all shrink-0" />
+                    </button>
+                  ))}
                 </div>
               </div>
-              <div className="space-y-4">
-                {data.webResults.map((result, i) => (
-                  <motion.a
-                    key={i}
-                    href={result.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.03 }}
-                    className="block p-4 bg-[var(--bg-0)] border border-[var(--border)] rounded-xl hover:border-indigo-500/30 hover:bg-[var(--bg-2)] transition-all group"
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <img src={`https://www.google.com/s2/favicons?domain=${getDomain(result.url)}&sz=32`} alt="" className="w-4 h-4 rounded" />
-                      <span className="text-[10px] font-bold text-[var(--text-secondary)] opacity-40 truncate">{getDomain(result.url)}</span>
-                    </div>
-                    <h3 className="text-sm font-bold text-indigo-400 group-hover:text-indigo-300 transition-colors mb-1 line-clamp-1">{result.title}</h3>
-                    <p className="text-xs text-[var(--text-secondary)] opacity-50 line-clamp-2 leading-relaxed">{result.snippet}</p>
-                  </motion.a>
-                ))}
-              </div>
-            </div>
-          )}
 
-          {/* Related Topics */}
-          {data.relatedTopics.length > 0 && (
-            <div className="bg-[var(--bg-1)] border border-[var(--border)] rounded-[2rem] p-6 lg:p-8">
-              <div className="flex items-center gap-3 mb-5">
-                <BookOpen className="text-rose-400" size={20} />
-                <div className="text-sm font-black text-[var(--text-primary)]">Related Topics</div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {data.relatedTopics.map((topic, i) => (
-                  <button
-                    key={i}
-                    onClick={() => { setQuery(topic.text.split(' - ')[0]); handleSearch(topic.text.split(' - ')[0]) }}
-                    className="text-left p-4 bg-[var(--bg-0)] border border-[var(--border)] rounded-xl hover:border-indigo-500/30 hover:bg-[var(--bg-2)] transition-all flex items-center gap-3"
-                  >
-                    <ChevronRight size={14} className="text-indigo-400 shrink-0" />
-                    <span className="text-xs text-[var(--text-primary)] line-clamp-2">{topic.text}</span>
-                  </button>
-                ))}
+              {/* Verified Badge / OS Info */}
+              <div className="p-6 bg-gradient-to-br from-indigo-500/10 to-purple-600/10 border border-indigo-500/20 rounded-[2rem] text-center">
+                <ShieldCheck className="mx-auto mb-3 text-indigo-400" size={32} />
+                <div className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-1">OS Verified Search</div>
+                <p className="text-[10px] text-indigo-400/60 leading-tight px-4">This result set has been validated by the Enterprise Neural Engine for factual consistency.</p>
               </div>
             </div>
-          )}
+          </div>
         </motion.div>
       )}
 

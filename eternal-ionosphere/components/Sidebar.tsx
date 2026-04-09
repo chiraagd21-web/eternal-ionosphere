@@ -75,7 +75,7 @@ export function Sidebar() {
   const activeWarehouse = useAppStore(state => state.activeWarehouse)
   const setActiveWarehouse = useAppStore(state => state.setActiveWarehouse)
   const zones = useAppStore(state => state.zones)
-  const { user, signOut } = useAuth()
+  const { user, profile, signOut } = useAuth()
 
   useEffect(() => {
     setMounted(true)
@@ -126,39 +126,72 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-4 overflow-y-auto space-y-6 py-2">
-        {navGroups.map((group) => (
-          <div key={group.label}>
-            <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-[0.3em] px-4 mb-3 opacity-50">
-              {group.label}
+        {navGroups.map((group) => {
+          // Filter items within the group
+          const visibleItems = group.items.filter(item => {
+            if (!profile) return false
+            // Master can see everything
+            if (profile.role === 'master') return true
+            // Check if user has permission for this route
+            return profile.permissions.includes(item.href)
+          })
+
+          if (visibleItems.length === 0) return null
+
+          return (
+            <div key={group.label}>
+              <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-[0.3em] px-4 mb-3 opacity-50">
+                {group.label}
+              </div>
+              <div className="space-y-1">
+                {visibleItems.map(({ href, label, icon: Icon }) => {
+                  const isActive = pathname === href || pathname.startsWith(href + '/')
+                  return (
+                    <Link 
+                      key={href} 
+                      href={href} 
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-75 group ${
+                        isActive 
+                          ? 'bg-[var(--brand)]/10 text-[var(--brand)]' 
+                          : 'text-[var(--text-secondary)] hover:bg-[var(--text-secondary)]/5 hover:text-[var(--text-primary)]'
+                      }`}
+                    >
+                      <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-[var(--brand)]' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'}`} />
+                      <span className="truncate">{label}</span>
+                      {isActive && (
+                        <motion.div
+                          layoutId="sidebar-active"
+                          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                          className="ml-auto w-1.5 h-1.5 rounded-full bg-[var(--brand)] shadow-[0_0_8px_var(--brand)] shrink-0"
+                        />
+                      )}
+                    </Link>
+                  )
+                })}
+              </div>
             </div>
-            <div className="space-y-1">
-              {group.items.map(({ href, label, icon: Icon }) => {
-                const isActive = pathname === href || pathname.startsWith(href + '/')
-                return (
-                  <Link 
-                    key={href} 
-                    href={href} 
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-75 group ${
-                      isActive 
-                        ? 'bg-[var(--brand)]/10 text-[var(--brand)]' 
-                        : 'text-[var(--text-secondary)] hover:bg-[var(--text-secondary)]/5 hover:text-[var(--text-primary)]'
-                    }`}
-                  >
-                    <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-[var(--brand)]' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'}`} />
-                    <span className="truncate">{label}</span>
-                    {isActive && (
-                      <motion.div
-                        layoutId="sidebar-active"
-                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                        className="ml-auto w-1.5 h-1.5 rounded-full bg-[var(--brand)] shadow-[0_0_8px_var(--brand)] shrink-0"
-                      />
-                    )}
-                  </Link>
-                )
-              })}
+          )
+        })}
+
+        {/* Admin Access Control shortcut */}
+        {profile?.role === 'master' && (
+          <div>
+            <div className="text-[10px] font-bold text-amber-500 uppercase tracking-[0.3em] px-4 mb-3 opacity-50">
+              Admin Ops
             </div>
+            <Link 
+              href="/settings/access" 
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-75 group ${
+                pathname === '/settings/access' 
+                  ? 'bg-amber-500/10 text-amber-500' 
+                  : 'text-[var(--text-secondary)] hover:bg-amber-500/5 hover:text-amber-500'
+              }`}
+            >
+              <ShieldCheck className="w-5 h-5 shrink-0" />
+              <span className="truncate">Neural Guard</span>
+            </Link>
           </div>
-        ))}
+        )}
       </nav>
 
       {/* User Info + Sign Out */}
