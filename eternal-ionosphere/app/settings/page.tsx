@@ -1,27 +1,14 @@
 'use client'
 
 import { useAuth } from '@/lib/auth'
-import { ShieldCheck, ArrowRight, Settings as SettingsIcon, Bell, Database, Globe } from 'lucide-react'
+import { ArrowRight, Settings as SettingsIcon, Bell, Database, Globe } from 'lucide-react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 
 export default function SettingsHub() {
-  const { profile } = useAuth()
+  const { user } = useAuth()
 
   const settingsGroups = [
-    {
-      label: 'Security & Access',
-      items: [
-        { 
-          id: 'access', 
-          title: 'Neural Guard (RBAC)', 
-          desc: 'Manage user roles and module permissions', 
-          icon: ShieldCheck, 
-          href: '/settings/access',
-          adminOnly: true 
-        },
-      ]
-    },
     {
       label: 'System Config',
       items: [
@@ -52,15 +39,11 @@ export default function SettingsHub() {
             </div>
             <div className="grid grid-cols-1 gap-3">
               {group.items.map((item) => {
-                const isMaster = profile?.role === 'master'
-                const isDisabled = (item.adminOnly && !isMaster) || item.comingSoon
+                const isDisabled = item.comingSoon
                 
-                if (item.adminOnly && !isMaster) return null
-
                 return (
-                  <Link 
+                  <div 
                     key={item.id}
-                    href={item.href}
                     className={`block p-6 rounded-3xl border transition-all ${
                       isDisabled 
                         ? 'bg-[var(--bg-1)] border-[var(--border)] opacity-50 cursor-not-allowed' 
@@ -82,7 +65,7 @@ export default function SettingsHub() {
                       </div>
                       {!isDisabled && <ArrowRight size={18} className="text-[var(--text-secondary)] opacity-20 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />}
                     </div>
-                  </Link>
+                  </div>
                 )
               })}
             </div>

@@ -30,8 +30,9 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   const [toasts, setToasts] = useState<ToastItem[]>([])
 
   const showToast = useCallback((message: string, type: ToastType = 'success') => {
-    const id = Math.random().toString(36).substring(2, 9)
-    setToasts(prev => [...prev.slice(-4), { id, message, type }]) // Limit to 5 concurrent toasts
+    // Neural Silence: Global notifications disabled as per user request
+    // const id = Math.random().toString(36).substring(2, 9)
+    // setToasts(prev => [...prev.slice(-4), { id, message, type }])
   }, [])
 
   const removeToast = useCallback((id: string) => {

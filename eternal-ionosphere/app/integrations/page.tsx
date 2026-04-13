@@ -68,8 +68,11 @@ export default function IntegrationsPage() {
   const connectIntegration = async (id: string, name: string) => {
     setIsConnecting(true)
     showToast(`Initializing secure handshake with ${name}...`, 'info')
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
+    // Real API Persistence
+    if (apiKey) {
+      localStorage.setItem(`api_key_${id}`, apiKey)
+    }
+
     const updated = integrations.map(int => {
       if (int.id === id) {
         return { ...int, status: 'connected' as IntegrationStatus, lastSync: new Date().toLocaleTimeString() }

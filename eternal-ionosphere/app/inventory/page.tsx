@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAppStore, type SKUData } from '@/lib/store'
 
 export default function InventoryLedgerPage() {
-  const { inventory, addDailyRecord, addSKU, deleteSKU, setHoveredSKUId, hoveredSKUId, updateLocation, deductFromLocation } = useAppStore()
+  const { inventory, addDailyRecord, addSKU, deleteSKU, setHoveredSKUId, hoveredSKUId, updateLocation, deductFromLocation, _isHydrated } = useAppStore()
   const [search, setSearch] = useState('')
   const [timeScale, setTimeScale] = useState<'days' | 'weeks' | 'months'>('days')
   const [entryMode, setEntryMode] = useState<'balance' | 'sales'>('balance')
@@ -137,9 +137,12 @@ export default function InventoryLedgerPage() {
          <div className="bg-[var(--bg-2)] p-6 rounded-[2rem] border border-[var(--border)] shadow-sm flex flex-col justify-between h-40 group hover:shadow-xl hover:border-[var(--brand)] transition-all">
             <div className="flex items-center justify-between">
                <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-600"><Boxes size={20} /></div>
-               <span className="text-[10px] font-black uppercase text-[var(--text-secondary)] tracking-[0.2em] opacity-40">Active Asset Inventory</span>
+               <span className="text-[10px] font-black uppercase text-[var(--text-secondary)] tracking-[0.2em] opacity-40">Persistence Status</span>
             </div>
-            <div className="text-3xl font-black text-[var(--text-primary)] tracking-tight">{kpis.totalAssets} <span className="text-sm font-bold text-[var(--text-secondary)] opacity-40">Total Products</span></div>
+            <div className="text-2xl font-black text-[var(--text-primary)] tracking-tight flex items-center gap-3">
+               <div className={`w-2 h-2 rounded-full ${(inventory?.length || 0) > 0 ? 'bg-emerald-500' : 'bg-amber-500'} animate-pulse`} />
+               {_isHydrated ? 'Cloud Synchronized' : 'Establishing Sync...'}
+            </div>
          </div>
          <button onClick={() => setShowAddModal(true)} className="bg-[var(--brand)] p-6 rounded-[2rem] shadow-2xl flex items-center justify-center gap-4 hover:scale-[1.02] active:scale-95 transition-all text-[var(--bg-0)] group overflow-hidden relative h-40">
             <div className="absolute top-0 left-0 w-full h-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />

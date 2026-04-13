@@ -3,7 +3,7 @@
  * TypeScript client for the FastAPI backend running on localhost:8000
  */
 
-const BASE_URL = process.env.ANTIGRAVITY_API_URL || 'http://localhost:8000'
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.ANTIGRAVITY_API_URL || 'http://localhost:8000'
 
 export interface SupplierResult {
   id: string

@@ -2,26 +2,52 @@ import { create } from 'zustand'
 import { persist, createJSONStorage, StateStorage } from 'zustand/middleware'
 import { supabase } from './supabase'
 
-const supabaseStorage: StateStorage = {
-  getItem: async (name: string): Promise<string | null> => {
-    const { data, error } = await supabase.from('app_state').select('value').eq('id', name).single();
-    if (error || !data) return null;
-    return JSON.stringify(data.value);
-  },
-  setItem: async (name: string, value: string): Promise<void> => {
-    await supabase.from('app_state').upsert({ id: name, value: JSON.parse(value) });
-  },
-  removeItem: async (name: string): Promise<void> => {
-    await supabase.from('app_state').delete().eq('id', name);
-  }
-};
-
-
-// RESTORING MASTER CATALOG FOR REFERENCE
+// MASTER CATALOG REFERENCE FOR FORECASTING & GLOBAL SEARCH
 export const PRE_DEFINED_CATALOG = [
   { name: 'Phone', id: 'ph11-746', category: 'Electronics', price: 999, safetyStock: 200, qtyOnHand: 0, utilizationRateMonth: 800, utilizationRateWeek: 200, growthRate: 10, growthPeriod: 'month' as 'month' | 'week' },
   { name: 'Laptop', id: 'lt11-562', category: 'Electronics', price: 1499, safetyStock: 100, qtyOnHand: 0, utilizationRateMonth: 800, utilizationRateWeek: 200, growthRate: 8, growthPeriod: 'month' as 'month' | 'week' },
 ]
+
+/**
+ * ROBUST PERSISTENCE ADAPTER
+ * Prioritizes LocalStorage for immediate hydration (Zero Latency)
+ * and attempts background synchronization with Supabase.
+ */
+const hybridStorage: StateStorage = {
+  getItem: (name: string): string | null => {
+    // Immediate local fetch to prevent hydration delays
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem(name);
+  },
+  setItem: (name: string, value: string): void => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(name, value);
+    
+    // Background sync - Non-blocking
+    const syncWithCloud = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const userId = session?.user?.id;
+        if (!userId) return;
+
+        const parsed = JSON.parse(value);
+        await supabase.from('app_state').upsert({
+          id: name,
+          user_id: userId,
+          state: parsed.state,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'id,user_id' });
+      } catch (err) {
+        console.warn('CLOUD_SYNC_STALLED:', err);
+      }
+    };
+    syncWithCloud();
+  },
+  removeItem: (name: string): void => {
+    if (typeof window === 'undefined') return;
+    localStorage.removeItem(name);
+  }
+};
 
 export interface InventoryLocation {
   rack: string
@@ -98,11 +124,14 @@ interface AppState {
   addDailyRecord: (skuId: string, date: string, qty?: number, sales?: number) => void
   clearPutAway: (itemId: string) => void
   deductFromLocation: (skuId: string, rack: string, qty: number) => void
+  _isHydrated: boolean
+  setHydrated: (val: boolean) => void
+  syncFromCloud: () => Promise<void>
 }
 
 export const useAppStore = create<AppState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       inventory: [], 
       shipments: [],
       zones: [
@@ -118,6 +147,30 @@ export const useAppStore = create<AppState>()(
       setHoveredSKUId: (id) => set({ hoveredSKUId: id }),
       pendingPutAway: [],
       rackPositions: {},
+      _isHydrated: false,
+      setHydrated: (val) => set({ _isHydrated: val }),
+      
+      syncFromCloud: async () => {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          const userId = session?.user?.id;
+          if (!userId) return;
+
+          const { data, error } = await supabase
+            .from('app_state')
+            .select('state')
+            .eq('id', 'zo-flow-master-state-v19')
+            .eq('user_id', userId)
+            .maybeSingle();
+
+          if (data?.state) {
+            set({ ...data.state as any });
+          }
+        } catch (err) {
+          console.error('CLOUD_RESTORE_FAILURE:', err);
+        }
+      },
+
       setInventory: (items) => set({ inventory: items }),
       setShipments: (shipments) => set({ shipments }),
       setZones: (zones) => set({ zones }),
@@ -178,10 +231,15 @@ export const useAppStore = create<AppState>()(
       updateSKU: (skuId, patch) => set((state) => ({
         inventory: state.inventory.map(item => item.id.toLowerCase() === skuId.toLowerCase() ? { ...item, ...patch } : item)
       })),
-      addSKU: (sku) => set((state) => ({ inventory: [...state.inventory, sku] })),
-      deleteSKU: (skuId) => set((state) => ({ inventory: state.inventory.filter(item => item.id.toLowerCase() !== skuId.toLowerCase()) })),
+      addSKU: (sku) => set((state) => {
+        const currentInv = state.inventory || [];
+        return { inventory: [...currentInv, sku] };
+      }),
+      deleteSKU: (skuId) => set((state) => ({ 
+        inventory: (state.inventory || []).filter(item => item.id.toLowerCase() !== skuId.toLowerCase()) 
+      })),
       addDailyRecord: (skuId: string, date: string, qty?: number, sales?: number) => set((state) => ({
-        inventory: state.inventory.map(item => {
+        inventory: (state.inventory || []).map(item => {
           if (item.id.toLowerCase() === skuId.toLowerCase()) {
             let currentRecords = [...(item.dailyRecords || [])]
             
@@ -228,9 +286,14 @@ export const useAppStore = create<AppState>()(
       })),
     }),
     {
-      name: 'ag-unified-v17-deductions',
-      storage: createJSONStorage(() => supabaseStorage),
-      version: 17,
+      name: 'zo-flow-master-state-v19',
+      storage: createJSONStorage(() => hybridStorage),
+      version: 19,
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated(true);
+        // On hydration, trigger a cloud restore if possible
+        state?.syncFromCloud();
+      }
     }
   )
 )

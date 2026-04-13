@@ -6,10 +6,17 @@ import { AuthGuard } from '@/components/AuthGuard'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const isLoginPage = pathname === '/login'
+  const marketingRoutes = [
+    '/', '/login', '/features', '/solutions', '/pricing', 
+    '/company', '/about', '/careers', '/partners', 
+    '/contact', '/privacy', '/terms', '/cookie-policy', 
+    '/licensing', '/documentation', '/security', '/compliance'
+  ]
+  
+  const isMarketingPage = marketingRoutes.includes(pathname)
 
-  if (isLoginPage) {
-    return <>{children}</>
+  if (isMarketingPage) {
+    return <main className="w-full min-h-screen bg-white">{children}</main>
   }
 
   return (

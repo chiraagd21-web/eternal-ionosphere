@@ -16,9 +16,7 @@ import {
   Physics, 
   RigidBody, 
 } from '@react-three/rapier'
-import { EffectComposer } from '@react-three/postprocessing'
-// @ts-ignore
-// import { N8AO } from 'n8ao'
+import { EffectComposer, N8AO } from '@react-three/postprocessing'
 import * as THREE from 'three'
 import { Zap, Bot, Sparkles, CheckCircle2 } from 'lucide-react'
 import { useAppStore, type SKUData } from '@/lib/store'
@@ -524,13 +522,13 @@ export function Warehouse3D({ inventory, layoutMode = false, onSelectItem, onOpt
             />
 
             <EffectComposer>
-              {/* <N8AO
+              <N8AO
                 intensity={1}
                 aoRadius={5}
                 distanceFalloff={1}
                 quality="high"
                 screenSpaceRadius
-              /> */}
+              />
             </EffectComposer>
           </group>
         </Suspense>

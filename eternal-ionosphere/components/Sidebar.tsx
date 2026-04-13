@@ -75,7 +75,7 @@ export function Sidebar() {
   const activeWarehouse = useAppStore(state => state.activeWarehouse)
   const setActiveWarehouse = useAppStore(state => state.setActiveWarehouse)
   const zones = useAppStore(state => state.zones)
-  const { user, profile, signOut } = useAuth()
+  const { user, signOut } = useAuth()
 
   useEffect(() => {
     setMounted(true)
@@ -108,14 +108,17 @@ export function Sidebar() {
   const sidebarContent = (
     <>
       {/* Logo */}
-      <div className="p-6 lg:p-8 flex items-center justify-between">
-        <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-            <Hexagon className="w-6 h-6 text-white" />
+      <div className="p-8 lg:p-10 flex items-center justify-between">
+        <Link href="/dashboard" className="flex items-center gap-5 group">
+          <div className="flex items-center text-[var(--brand)] transition-transform group-hover:scale-110">
+            <svg width="48" height="18" viewBox="0 0 32 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="6" cy="6" r="6" fill="currentColor"/>
+              <rect x="18" y="2" width="14" height="8" fill="currentColor"/>
+            </svg>
           </div>
-          <div>
-            <div className="font-bold text-lg text-[var(--text-primary)] leading-tight tracking-tight">zo</div>
-            <div className="text-[10px] text-[var(--text-secondary)] font-semibold uppercase tracking-[0.2em]">Enterprise OS</div>
+          <div className="flex flex-col">
+            <div className="font-black text-3xl text-[var(--text-primary)] leading-none tracking-tight">zo</div>
+            <div className="text-[9px] text-[var(--text-secondary)] font-black uppercase tracking-[0.3em] mt-1">Enterprise OS</div>
           </div>
         </Link>
         {/* Mobile close */}
@@ -127,24 +130,13 @@ export function Sidebar() {
       {/* Nav */}
       <nav className="flex-1 px-4 overflow-y-auto space-y-6 py-2">
         {navGroups.map((group) => {
-          // Filter items within the group
-          const visibleItems = group.items.filter(item => {
-            if (!profile) return false
-            // Master can see everything
-            if (profile.role === 'master') return true
-            // Check if user has permission for this route
-            return profile.permissions.includes(item.href)
-          })
-
-          if (visibleItems.length === 0) return null
-
           return (
             <div key={group.label}>
               <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-[0.3em] px-4 mb-3 opacity-50">
                 {group.label}
               </div>
               <div className="space-y-1">
-                {visibleItems.map(({ href, label, icon: Icon }) => {
+                {group.items.map(({ href, label, icon: Icon }) => {
                   const isActive = pathname === href || pathname.startsWith(href + '/')
                   return (
                     <Link 
@@ -174,7 +166,7 @@ export function Sidebar() {
         })}
 
         {/* Admin Access Control shortcut */}
-        {profile?.role === 'master' && (
+        {user && (
           <div>
             <div className="text-[10px] font-bold text-amber-500 uppercase tracking-[0.3em] px-4 mb-3 opacity-50">
               Admin Ops

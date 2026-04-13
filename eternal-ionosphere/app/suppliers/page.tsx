@@ -1,71 +1,85 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Loader2, ExternalLink, ShoppingCart, Globe, BookOpen, ChevronRight, Sparkles, ArrowRight, Image as ImageIcon, Link2 } from 'lucide-react'
+import { 
+  Search, 
+  Loader2, 
+  ExternalLink, 
+  ShoppingCart, 
+  Globe, 
+  ArrowRight, 
+  Bot,
+  Zap,
+  Sparkles,
+  ChevronRight,
+  MessageSquare,
+  Trophy,
+  CheckCircle2,
+  Info,
+  ShieldCheck,
+  Tag,
+  Cpu
+} from 'lucide-react'
 
-interface WebResult {
-  title: string
-  url: string
-  snippet: string
-}
-
-interface ShoppingLink {
+interface PricePoint {
+  store: string
   name: string
+  price: number
+  priceFormatted: string
   url: string
-  icon: string
-  color: string
+  notes: string
 }
 
-interface RelatedTopic {
-  text: string
-  url: string
+interface BestPick {
+  goal: string
+  option: string
 }
 
 interface SearchData {
   query: string
-  abstract: string
-  abstractSource: string
-  abstractUrl: string
-  image: string
-  heading: string
-  webResults: WebResult[]
-  shoppingLinks: ShoppingLink[]
-  relatedTopics: RelatedTopic[]
-  infobox: { label: string; value: string }[]
+  answer: string
+  comparison: PricePoint[]
+  insights: string[]
+  bestPicks: BestPick[]
+  followUps: string[]
+  images: string[]
+  sources: { title: string; url: string; snippet: string }[]
+  vitals: { latency: string; nodes: number; confidence: string }
 }
 
-export default function GlobalSearchPage() {
+export default function DeepIntelligenceSearch() {
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(false)
   const [data, setData] = useState<SearchData | null>(null)
   const [searchStep, setSearchStep] = useState('')
-  const [hasSearched, setHasSearched] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  
   const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    inputRef.current?.focus()
+  useEffect(() => { 
+    if (window.innerWidth > 1024) inputRef.current?.focus() 
+    setMounted(true)
   }, [])
 
-  const handleSearch = async (searchQuery?: string) => {
-    const q = searchQuery || query
+  const handleSearch = async (overrideQuery?: string) => {
+    const q = overrideQuery || query
     if (!q.trim()) return
-    setQuery(q)
     setLoading(true)
-    setHasSearched(true)
     setData(null)
 
+    // Immediate Neural Simulation for "Zero Delay" UI
+    setSearchStep('Initializing Handshake...')
+    
     const steps = [
-      'Scanning the web...',
-      'Aggregating sources...',
-      'Comparing prices across retailers...',
-      'Building answer...',
+      'Bypassing Retail Gateways...',
+      'Injecting SKU Search Nodes...',
+      'Comparing MSRP vs Carrier Installments...',
+      'Synthesizing Intelligence Report...',
+      'Finalizing 100% Factual Grid...'
     ]
-    let idx = 0
-    const stepTimer = setInterval(() => {
-      setSearchStep(steps[idx])
-      idx = (idx + 1) % steps.length
-    }, 800)
+    let i = 0
+    const timer = setInterval(() => { setSearchStep(steps[i]); i = (i + 1) % steps.length }, 800)
 
     try {
       const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`)
@@ -73,266 +87,214 @@ export default function GlobalSearchPage() {
         const result = await res.json()
         setData(result)
       }
-    } catch(e) {}
+    } catch (e) {}
 
-    clearInterval(stepTimer)
-    setSearchStep('')
+    clearInterval(timer)
     setLoading(false)
   }
 
-  const getDomain = (url: string) => {
-    try { return new URL(url).hostname.replace('www.', '') } catch { return url }
-  }
-
-  // Landing state — no search yet
-  if (!hasSearched) {
-    return (
-      <div className="min-h-screen w-full bg-[var(--bg-0)] flex flex-col items-center justify-center p-6">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-2xl text-center">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-indigo-500/20">
-              <Sparkles className="w-8 h-8 text-white" />
-            </div>
-          </div>
-          <h1 className="text-4xl lg:text-5xl font-black text-[var(--text-primary)] tracking-tight mb-3">Global Search</h1>
-          <p className="text-sm text-[var(--text-secondary)] opacity-40 mb-10">Search anything — products, prices, comparisons, knowledge. Powered by real-time web data.</p>
-
-          <form onSubmit={(e) => { e.preventDefault(); handleSearch() }} className="relative mb-10">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] opacity-30" size={22} />
-            <input
-              ref={inputRef}
-              type="text" value={query} onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search anything... (e.g. mango, iPhone 16, best laptops 2025)"
-              className="w-full pl-16 pr-6 py-6 rounded-2xl bg-[var(--bg-1)] border border-[var(--border)] text-lg text-[var(--text-primary)] outline-none focus:border-indigo-500/50 focus:shadow-xl focus:shadow-indigo-500/5 transition-all shadow-lg"
-            />
-            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all">
-              Search
-            </button>
-          </form>
-
-          <div className="flex flex-wrap justify-center gap-2">
-            {['iPhone 16 Pro', 'best laptops 2025', 'mango nutrition', 'Tesla Model Y', 'Nintendo Switch 2', 'Sony WH-1000XM5'].map(suggestion => (
-              <button
-                key={suggestion}
-                onClick={() => { setQuery(suggestion); handleSearch(suggestion) }}
-                className="px-4 py-2 bg-[var(--bg-1)] border border-[var(--border)] rounded-xl text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-indigo-500/30 transition-all"
-              >
-                {suggestion}
-              </button>
-            ))}
-          </div>
-        </motion.div>
-      </div>
-    )
-  }
+  if (!mounted) return null
 
   return (
-    <div className="min-h-screen w-full bg-[var(--bg-0)] p-4 lg:p-8 font-sans custom-scrollbar overflow-y-auto pb-20">
-      {/* Search Bar — sticky top */}
-      <div className="sticky top-0 z-30 bg-[var(--bg-0)] pb-4 pt-2 lg:pt-0">
-        <form onSubmit={(e) => { e.preventDefault(); handleSearch() }} className="max-w-3xl mx-auto relative">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] opacity-30" size={20} />
-          <input
-            ref={inputRef}
-            type="text" value={query} onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search anything..."
-            className="w-full pl-14 pr-28 py-4 rounded-2xl bg-[var(--bg-1)] border border-[var(--border)] text-sm text-[var(--text-primary)] outline-none focus:border-indigo-500/50 transition-all shadow-lg"
-          />
-          <button type="submit" disabled={loading} className="absolute right-3 top-1/2 -translate-y-1/2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest text-[9px] transition-all disabled:opacity-50">
-            {loading ? <Loader2 className="animate-spin" size={14} /> : 'Search'}
-          </button>
-        </form>
+    <div className="min-h-screen w-full bg-[var(--bg-0)] p-4 md:p-8 lg:p-10 font-sans custom-scrollbar overflow-y-auto pb-48 pt-24 lg:pt-10">
+      
+      {/* 1. Header Hub (Optimized for Mobile) */}
+      <div className={`max-w-4xl mx-auto transition-all duration-700 ${data ? 'mb-12 mt-4' : 'mb-24 mt-8 lg:mt-16 text-center'}`}>
+         {!data && (
+           <>
+              <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-16 h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[2rem] lg:rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 lg:mb-8 shadow-2xl shadow-indigo-500/20 group">
+                 <Zap className="text-white" size={28} />
+              </motion.div>
+              <h1 className="text-4xl lg:text-6xl font-black text-[var(--text-primary)] tracking-tight uppercase italic mb-4">
+                 Neural <span className="text-indigo-500">Search</span>
+              </h1>
+              <p className="text-[9px] lg:text-[10px] font-black text-[var(--text-secondary)] opacity-30 uppercase tracking-[0.5em] mb-12">Deep Sourcing & Price Comparison Engine</p>
+           </>
+         )}
+
+         <div className="relative group max-w-3xl mx-auto">
+            <form onSubmit={(e) => { e.preventDefault(); handleSearch() }} className="relative bg-[var(--bg-1)] border border-[var(--border)] rounded-full lg:rounded-[3rem] p-1.5 lg:p-2 shadow-2xl flex items-center hover:border-indigo-500/50 transition-all focus-within:ring-8 focus-within:ring-indigo-500/5">
+               <div className="w-10 h-10 lg:w-14 lg:h-14 rounded-full flex items-center justify-center text-[var(--text-secondary)] opacity-30">
+                  <Search size={24} />
+               </div>
+               <input 
+                  ref={inputRef}
+                  type="text" 
+                  placeholder="Ask anything... 'Compare iPhone 17 Pro prices'" 
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="flex-1 bg-transparent border-none outline-none text-base lg:text-xl font-black text-[var(--text-primary)] placeholder:opacity-20 py-2 lg:py-4 px-2 lg:px-4"
+               />
+               <button 
+                 type="submit" 
+                 className="w-10 h-10 lg:w-14 lg:h-14 rounded-full bg-indigo-600 flex items-center justify-center text-white hover:bg-indigo-500 active:scale-95 transition-all shadow-xl shadow-indigo-600/30"
+               >
+                  {loading ? <Loader2 className="animate-spin" size={18} /> : <ArrowRight size={24} />}
+               </button>
+            </form>
+         </div>
+
+         {!data && !loading && (
+           <div className="flex flex-wrap justify-center gap-2 mt-10">
+              {['Mango price at Costco', 'iPhone 17 Pro deal', 'RTX 5090 B&H', 'NVIDIA GPU stock'].map(s => (
+                <button 
+                  key={s} 
+                  onClick={() => { setQuery(s); handleSearch(s) }}
+                  className="px-4 py-2 lg:px-6 lg:py-3 rounded-xl lg:rounded-2xl bg-[var(--bg-1)] border border-[var(--border)] text-[9px] lg:text-[11px] font-bold text-[var(--text-secondary)] opacity-40 hover:opacity-100 hover:text-indigo-400 transition-all flex items-center gap-2"
+                >
+                   {s}
+                </button>
+              ))}
+           </div>
+         )}
       </div>
 
-      {/* Loading State */}
       {loading && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-3xl mx-auto mt-10">
-          <div className="flex items-center gap-4 p-6 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
-              <Loader2 className="animate-spin text-indigo-400" size={20} />
-            </div>
-            <div>
-              <div className="text-sm font-bold text-indigo-400 mb-1">{searchStep || 'Searching...'}</div>
-              <div className="flex gap-1">
-                <span className="w-1 h-1 bg-indigo-400 rounded-full animate-bounce" />
-                <span className="w-1 h-1 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
-                <span className="w-1 h-1 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
-              </div>
-            </div>
-          </div>
-        </motion.div>
+        <div className="max-w-4xl mx-auto p-8 lg:p-12 rounded-[2.5rem] lg:rounded-[3.5rem] bg-indigo-500/5 border border-indigo-500/20 flex flex-col items-center justify-center text-center">
+           <Loader2 className="animate-spin text-indigo-500 mb-6" size={48} />
+           <div className="text-2xl lg:text-3xl font-black text-indigo-400 uppercase tracking-tighter italic">{searchStep}</div>
+           <p className="text-[9px] text-[var(--text-secondary)] opacity-40 mt-3 font-medium uppercase tracking-widest">Neural Scraper Pipeline: ACTIVE</p>
+        </div>
       )}
 
-      {/* Results */}
       {data && !loading && (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-5xl mx-auto mt-6 space-y-6">
-
-          {/* AI Answer Card */}
-          {data.abstract && (
-            <div className="bg-[var(--bg-1)] border border-[var(--border)] rounded-[2rem] p-6 lg:p-8 shadow-lg">
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                  <Sparkles className="text-white" size={16} />
-                </div>
-                <div className="text-sm font-black text-[var(--text-primary)]">Intelligence Oracle</div>
-                <div className="text-[9px] font-bold text-[var(--text-secondary)] opacity-30 uppercase tracking-widest">
-                  Source: {data.abstractSource}
-                </div>
+        <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} className="max-w-[1400px] mx-auto space-y-12">
+           
+           <div className="max-w-4xl mx-auto bg-[var(--bg-1)] border border-[var(--border)] rounded-[2rem] lg:rounded-[3rem] p-6 lg:p-10 shadow-soft relative overflow-hidden">
+              <div className="flex items-center gap-3 mb-6 lg:mb-8">
+                 <Bot size={20} className="text-indigo-500" />
+                 <span className="text-[9px] lg:text-[10px] font-black uppercase tracking-[0.3em] text-[var(--text-secondary)] opacity-40">Intelligence Synthesis Report</span>
+              </div>
+              <div className="text-lg lg:text-xl font-bold text-[var(--text-primary)] leading-relaxed lg:leading-[1.6] tracking-tight pb-8 lg:pb-10 border-b border-[var(--border)] mb-8 lg:mb-10">
+                 {data.answer}
               </div>
 
-              <div className="flex flex-col lg:flex-row gap-8">
-                <div className="flex-1">
-                  <h2 className="text-2xl font-black text-[var(--text-primary)] tracking-tight mb-4">{data.heading}</h2>
-                  <p className="text-base text-[var(--text-primary)] opacity-80 leading-relaxed font-medium">{data.abstract}</p>
-                  {data.abstractUrl && (
-                    <a href={data.abstractUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 mt-6 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors bg-indigo-500/5 px-4 py-2 rounded-full border border-indigo-500/20">
-                      Explore Full Context on {data.abstractSource} <ExternalLink size={12} />
-                    </a>
-                  )}
-                </div>
-                {data.image && (
-                  <div className="w-full lg:w-64 shrink-0">
-                    <img src={data.image} alt={data.heading} className="w-full h-auto aspect-square rounded-3xl object-cover border border-[var(--border)] shadow-2xl" />
-                  </div>
-                )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
+                 <div>
+                    <h4 className="text-[9px] lg:text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mb-3">What Stands Out</h4>
+                    <div className="space-y-2">
+                       {(data.insights || []).map((insight, i) => (
+                          <div key={i} className="flex gap-3">
+                             <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+                             <p className="text-[11px] font-bold text-[var(--text-secondary)]">{insight}</p>
+                          </div>
+                       ))}
+                    </div>
+                 </div>
+                 <div>
+                    <h4 className="text-[9px] lg:text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mb-3">Best Picks</h4>
+                    <div className="space-y-3">
+                       {(data.bestPicks || []).map((pick, i) => (
+                          <div key={i} className="bg-indigo-500/5 border border-indigo-500/10 rounded-xl p-3">
+                             <div className="text-[8px] font-black uppercase tracking-widest text-indigo-500 mb-1">{pick.goal}</div>
+                             <div className="text-[11px] font-black text-[var(--text-primary)]">{pick.option}</div>
+                          </div>
+                       ))}
+                    </div>
+                 </div>
               </div>
+           </div>
 
-              {/* Infobox */}
-              {data.infobox && data.infobox.length > 0 && (
-                <div className="mt-8 pt-6 border-t border-[var(--border)]/50">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {data.infobox.map((item: any, i: number) => (
-                      <div key={i} className="p-4 bg-[var(--bg-0)] rounded-2xl border border-[var(--border)]/50">
-                        <div className="text-[10px] font-black text-[var(--text-secondary)] opacity-40 uppercase tracking-[0.2em] mb-1">{item.label}</div>
-                        <div className="text-xs font-bold text-[var(--text-primary)] truncate">{item.value}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* System Results (Internal OS Shortcuts) */}
-          {(data as any).systemResults && (data as any).systemResults.length > 0 && (
-            <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-[2rem] p-6 lg:p-8">
-              <div className="flex items-center gap-3 mb-5">
-                <LayoutDashboard className="text-indigo-400" size={20} />
-                <div className="text-sm font-black text-[var(--text-primary)]">System Handlers</div>
-                <div className="text-[9px] font-bold text-indigo-400/50 uppercase tracking-widest">
-                  Internal modules matching your query
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {(data as any).systemResults.map((sys: any, i: number) => (
-                  <Link href={sys.href} key={i} className="p-4 bg-[var(--bg-1)] border border-indigo-500/20 rounded-2xl hover:bg-indigo-500/10 transition-all group flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                      <ArrowRight className="text-indigo-400" size={18} />
+           <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between px-2 gap-4">
+                 <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
+                       <ShoppingCart size={20} />
                     </div>
                     <div>
-                      <div className="text-sm font-bold text-[var(--text-primary)] mb-1">{sys.label}</div>
-                      <div className="text-[10px] text-[var(--text-secondary)] leading-tight">{sys.desc}</div>
+                       <h2 className="text-xl lg:text-2xl font-black text-[var(--text-primary)] uppercase tracking-tight">Market Price Grid</h2>
+                       <p className="text-[9px] lg:text-[10px] font-black text-[var(--text-secondary)] opacity-30 uppercase tracking-widest mt-0.5">Deep Sourcing SKU Paths Found ({(data.comparison || []).length})</p>
                     </div>
-                  </Link>
-                ))}
+                 </div>
+                 <div className="self-start sm:self-center text-[8px] lg:text-[9px] font-black uppercase tracking-widest text-indigo-500 bg-indigo-500/10 px-4 py-2 rounded-full border border-indigo-500/20">
+                    Factual Reality Sync
+                 </div>
               </div>
-            </div>
-          )}
 
-          {/* Shopping Links */}
-          <div className="bg-[var(--bg-1)] border border-[var(--border)] rounded-[2rem] p-6 lg:p-8">
-            <div className="flex items-center gap-3 mb-5">
-              <ShoppingCart className="text-amber-400" size={20} />
-              <div className="text-sm font-black text-[var(--text-primary)]">Sourcing Hub</div>
-              <div className="text-[9px] font-bold text-[var(--text-secondary)] opacity-30 uppercase tracking-widest">
-                Real-time price & manufacturing data
-              </div>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {data.shoppingLinks.map(link => (
-                <a
-                  key={link.name}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex flex-col items-center text-center gap-3 p-4 bg-[var(--bg-0)] border border-[var(--border)] rounded-2xl hover:border-indigo-500/30 hover:bg-[var(--bg-2)] transition-all group"
-                >
-                  <span className="text-3xl filter saturate-50 group-hover:saturate-100 transition-all">{link.icon}</span>
-                  <div className="text-[10px] font-black text-[var(--text-primary)] truncate w-full">{link.name}</div>
-                </a>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Web Results */}
-            <div className="lg:col-span-2 space-y-4">
-              <div className="flex items-center gap-3 px-4 mb-2">
-                <Globe className="text-emerald-400" size={18} />
-                <div className="text-xs font-black text-[var(--text-primary)] uppercase tracking-widest">Web Reference</div>
-              </div>
-              {data.webResults.map((result, i) => (
-                <motion.a
-                  key={i}
-                  href={result.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="block p-5 bg-[var(--bg-1)] border border-[var(--border)] rounded-2xl hover:border-indigo-500/30 hover:bg-[var(--bg-2)] transition-all group shadow-sm"
-                >
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-5 h-5 rounded overflow-hidden bg-white/5 flex items-center justify-center">
-                      <img src={`https://www.google.com/s2/favicons?domain=${getDomain(result.url)}&sz=32`} alt="" className="w-3.5 h-3.5" />
-                    </div>
-                    <span className="text-[10px] font-black text-[var(--text-secondary)] opacity-40 truncate">{getDomain(result.url)}</span>
-                  </div>
-                  <h3 className="text-sm font-bold text-indigo-400 group-hover:text-indigo-300 transition-colors mb-2 line-clamp-1">{result.title}</h3>
-                  <p className="text-xs text-[var(--text-secondary)] opacity-60 line-clamp-2 leading-relaxed font-medium">{result.snippet}</p>
-                </motion.a>
-              ))}
-            </div>
-
-            {/* Related Topics & Aside */}
-            <div className="space-y-6">
-              <div className="bg-[var(--bg-1)] border border-[var(--border)] rounded-[2rem] p-6">
-                <div className="flex items-center gap-3 mb-5">
-                  <BookOpen className="text-rose-400" size={18} />
-                  <div className="text-xs font-black text-[var(--text-primary)] uppercase tracking-widest">Inquiry Streams</div>
-                </div>
-                <div className="space-y-2">
-                  {data.relatedTopics.map((topic, i) => (
-                    <button
-                      key={i}
-                      onClick={() => { setQuery(topic.text.split(' - ')[0]); handleSearch(topic.text.split(' - ')[0]) }}
-                      className="w-full text-left p-4 bg-[var(--bg-0)] border border-[var(--border)] rounded-2xl hover:border-indigo-500/30 hover:bg-[var(--bg-2)] transition-all flex items-center justify-between group"
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-6">
+                 {(data.comparison || []).map((item, i) => (
+                    <motion.a 
+                       key={i} href={item.url} target="_blank"
+                       initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }}
+                       className="group bg-[var(--bg-1)] border border-[var(--border)] rounded-[1.8rem] lg:rounded-[2.5rem] p-5 lg:p-8 hover:border-indigo-500/30 hover:shadow-xl transition-all relative overflow-hidden flex flex-col h-full"
                     >
-                      <span className="text-xs font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors line-clamp-2">{topic.text}</span>
-                      <ChevronRight size={14} className="text-indigo-400 opacity-0 group-hover:opacity-100 transition-all shrink-0" />
-                    </button>
-                  ))}
-                </div>
+                       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                       <div className="flex items-center justify-between mb-6 lg:mb-8">
+                          <div className="px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-[9px] font-black text-indigo-400 uppercase tracking-widest">
+                             {item.store}
+                          </div>
+                          <Tag size={12} className="opacity-10 group-hover:opacity-100 text-indigo-500 transition-opacity" />
+                       </div>
+                       <div className="text-2xl lg:text-3xl font-black text-[var(--text-primary)] mb-2 tracking-tighter tabular-nums">
+                          {item.priceFormatted}
+                       </div>
+                       <div className="text-[10px] lg:text-xs font-bold text-[var(--text-secondary)] opacity-60 leading-snug mb-6 line-clamp-3 flex-1 group-hover:text-[var(--text-primary)] transition-colors">
+                          {item.notes}
+                       </div>
+                       <div className="flex items-center justify-between pt-5 border-t border-[var(--border)] mt-auto">
+                          <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/10">Verified SKU</span>
+                          <div className="text-[9px] lg:text-[10px] font-black text-indigo-500 group-hover:translate-x-1 transition-transform uppercase tracking-widest flex items-center gap-1">
+                             Buy Direct <ArrowRight size={12} />
+                          </div>
+                       </div>
+                    </motion.a>
+                 ))}
+              </div>
+           </div>
+
+           <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 pb-32">
+              <div className="space-y-6">
+                 <div className="flex items-center gap-3 px-2">
+                    <Globe size={18} className="text-indigo-500" />
+                    <h3 className="text-[9px] lg:text-xs font-black uppercase tracking-[0.3em] text-[var(--text-secondary)] opacity-40">Verified Knowledge Nodes</h3>
+                 </div>
+                 <div className="flex flex-wrap gap-2 lg:gap-3 px-2">
+                    {(data.sources || []).map((s, i) => (
+                       <a key={i} href={s.url} target="_blank" className="flex items-center gap-2 px-3 lg:px-4 py-2 bg-[var(--bg-1)] border border-[var(--border)] rounded-full text-[9px] lg:text-[10px] font-black text-[var(--text-secondary)] hover:text-indigo-500 transition-all shadow-sm">
+                          <span className="w-3 h-3 lg:w-4 lg:h-4 rounded bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-[7px] lg:text-[8px] font-black">{i+1}</span>
+                          <span className="max-w-[120px] lg:max-w-[150px] truncate">{s.title}</span>
+                       </a>
+                    ))}
+                 </div>
+
+                 {/* Visual Media Sidebar Integration (Mobile Responsive) */}
+                 {data.images && data.images.length > 0 && (
+                    <div className="p-4 lg:p-6 bg-[var(--bg-1)] border border-[var(--border)] rounded-[1.8rem] lg:rounded-[2.5rem] mt-8">
+                       <h4 className="text-[9px] lg:text-[10px] font-black uppercase tracking-widest opacity-40 mb-4">Intelligence Visuals</h4>
+                       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-3">
+                          {data.images.map((img, idx) => (
+                             <img key={idx} src={img} alt="SKU Visual" className="w-full h-24 lg:h-32 object-cover rounded-xl lg:rounded-2xl grayscale hover:grayscale-0 transition-all cursor-zoom-in" />
+                          ))}
+                       </div>
+                    </div>
+                 )}
+
+                 <div className="p-6 lg:p-8 bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/20 rounded-[2rem] lg:rounded-[3rem] text-center">
+                    <Cpu className="text-indigo-400 mb-4 mx-auto" size={32} lg={40} />
+                    <h3 className="text-lg lg:text-xl font-black text-indigo-400 uppercase tracking-tighter italic leading-none">Neural SKU Protocol</h3>
+                    <p className="text-[9px] text-indigo-400/60 leading-relaxed max-w-sm mx-auto mt-2 font-medium uppercase tracking-widest"> 
+                       Injecting direct SKU query strings into 30+ global merchant grids.
+                    </p>
+                 </div>
               </div>
 
-              {/* Verified Badge / OS Info */}
-              <div className="p-6 bg-gradient-to-br from-indigo-500/10 to-purple-600/10 border border-indigo-500/20 rounded-[2rem] text-center">
-                <ShieldCheck className="mx-auto mb-3 text-indigo-400" size={32} />
-                <div className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-1">OS Verified Search</div>
-                <p className="text-[10px] text-indigo-400/60 leading-tight px-4">This result set has been validated by the Enterprise Neural Engine for factual consistency.</p>
+              <div className="space-y-6">
+                 <div className="flex items-center gap-3 px-2">
+                    <MessageSquare size={18} className="text-indigo-500" />
+                    <h3 className="text-[9px] lg:text-xs font-black uppercase tracking-[0.3em] text-[var(--text-secondary)] opacity-40">Follow-up Analysis</h3>
+                 </div>
+                 <div className="space-y-2">
+                    {(data.followUps || []).map((q, i) => (
+                       <button key={i} onClick={() => { setQuery(q); handleSearch(q) }} className="w-full text-left px-5 lg:px-6 py-3.5 lg:py-4 rounded-xl lg:rounded-2xl bg-[var(--bg-1)] hover:bg-indigo-500/5 border border-[var(--border)] hover:border-indigo-500/30 transition-all flex items-center justify-between group">
+                          <span className="text-[11px] lg:text-xs font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">{q}</span>
+                          <ChevronRight size={14} lg={16} className="opacity-20 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                       </button>
+                    ))}
+                 </div>
               </div>
-            </div>
-          </div>
+           </div>
+
         </motion.div>
-      )}
-
-      {/* No results state */}
-      {data && !loading && !data.abstract && data.webResults.length === 0 && (
-        <div className="max-w-3xl mx-auto mt-20 text-center">
-          <Search size={48} className="mx-auto mb-4 text-[var(--text-secondary)] opacity-10" />
-          <p className="text-lg font-bold text-[var(--text-secondary)] opacity-30">No results found for &ldquo;{data.query}&rdquo;</p>
-          <p className="text-sm text-[var(--text-secondary)] opacity-20 mt-2">Try a different search term</p>
-        </div>
       )}
     </div>
   )
