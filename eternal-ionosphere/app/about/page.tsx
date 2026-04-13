@@ -3,114 +3,123 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { 
   ArrowLeft,
-  Mail,
   Globe,
-  ShieldCheck,
-  FileText,
   Users,
-  Briefcase,
-  HelpCircle,
-  MessageSquare
+  Target,
+  Rocket,
+  Shield,
+  Zap,
+  Activity
 } from 'lucide-react'
 
-// --- REUSABLE NAV ---
-
 const Nav = () => (
-  <nav className="fixed top-0 left-0 w-full p-8 lg:p-12 flex justify-between items-center z-[100] transition-all bg-white/60 backdrop-blur-3xl border-b border-black/5">
+  <nav className="fixed top-0 left-0 w-full p-6 lg:p-10 flex justify-between items-center z-[100] bg-white/80 backdrop-blur-3xl border-b border-slate-100">
     <Link href="/" className="flex items-center gap-6 group">
-      <svg width="40" height="14" viewBox="0 0 32 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-slate-900 group-hover:scale-110 transition-transform">
+      <svg width="34" height="12" viewBox="0 0 32 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-slate-950">
          <circle cx="6" cy="6" r="6" fill="currentColor"/>
          <rect x="18" y="2" width="14" height="8" fill="currentColor"/>
       </svg>
-      <div className="text-2xl font-black uppercase tracking-[0.2em] text-slate-900">zo.flow</div>
+      <div className="text-xl font-black uppercase tracking-[0.2em] text-slate-950 italic">zo.flow</div>
     </Link>
-    
-    <div className="hidden lg:flex items-center gap-12 font-black uppercase tracking-[0.2em] text-[10px] text-slate-400">
-       <Link href="/features" className="hover:text-slate-950 transition-all cursor-pointer">Features</Link>
-       <Link href="/solutions" className="hover:text-slate-950 transition-all cursor-pointer">Solutions</Link>
-       <Link href="/pricing" className="hover:text-slate-950 transition-all cursor-pointer">Pricing</Link>
-       <Link href="/company" className="hover:text-slate-950 transition-all cursor-pointer">Company</Link>
+    <div className="hidden lg:flex items-center gap-12 font-bold uppercase tracking-[0.2em] text-[10px] text-slate-400">
+      <Link href="/about" className="text-slate-950 transition-all">About</Link>
+      <Link href="/careers" className="hover:text-slate-950 transition-all">Careers</Link>
+      <Link href="/pricing" className="hover:text-slate-950 transition-all">Pricing</Link>
+      <Link href="/contact" className="hover:text-slate-950 transition-all">Contact</Link>
     </div>
-
-    <Link 
-      href="/login" 
-      className="px-10 py-3.5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.4em] rounded-full hover:bg-emerald-600 transition-all shadow-xl"
-    >
-      Authorize
-    </Link>
+    <Link href="/login" className="px-10 py-3.5 bg-slate-950 text-white text-[10px] font-black uppercase tracking-[0.5em] rounded-full hover:bg-emerald-600 transition-all shadow-2xl">Login</Link>
   </nav>
 )
 
-export default function GenericInfoPage() {
-  const pathname = usePathname()
-  const title = pathname.slice(1).toUpperCase().replace('-', ' ')
-  
-  const getIcon = () => {
-     if (pathname.includes('privacy') || pathname.includes('terms') || pathname.includes('legal')) return ShieldCheck
-     if (pathname.includes('contact')) return Mail
-     if (pathname.includes('careers')) return Briefcase
-     if (pathname.includes('documentation') || pathname.includes('help')) return HelpCircle
-     return FileText
-  }
-
-  const PageIcon = getIcon()
-
+export default function AboutPage() {
   return (
-    <div className="min-h-screen w-full bg-[#fdfdfd] pt-48 pb-64 font-sans">
-       <Nav />
-       
-       <article className="max-w-4xl mx-auto px-12">
-          <Link href="/" className="group flex items-center gap-4 text-slate-400 hover:text-slate-950 transition-all mb-20">
-             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-             <span className="text-[10px] font-black uppercase tracking-widest">Return Home</span>
-          </Link>
+    <div className="min-h-screen bg-[#fdfdfd] text-slate-950 font-sans selection:bg-emerald-500 selection:text-white pb-32">
+      <Nav />
+      
+      <main className="pt-48 px-6 lg:px-24 max-w-7xl mx-auto">
+        <motion.div
+           initial={{ opacity: 0, y: 20 }}
+           animate={{ opacity: 1, y: 0 }}
+           className="space-y-12 mb-32"
+        >
+           <Link href="/" className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 hover:text-slate-950 transition-all w-fit">
+              <ArrowLeft size={14} /> Back to Home
+           </Link>
+           <h1 className="text-7xl lg:text-[10rem] font-black tracking-tighter leading-[0.8] uppercase italic">
+              Our.<br />Mission.
+           </h1>
+           <p className="text-2xl lg:text-4xl text-slate-400 font-medium max-w-4xl leading-relaxed italic border-l-8 border-emerald-500 pl-10 py-4">
+              "To solve the fragmentation of global commerce by unifying supply chains into a single, intelligent operating system."
+           </p>
+        </motion.div>
 
-          <header className="space-y-12 mb-24">
-             <div className="w-20 h-20 rounded-[1.8rem] bg-slate-900 text-white flex items-center justify-center shadow-2xl">
-                <PageIcon size={32} />
-             </div>
-             <h1 className="text-7xl lg:text-[8rem] font-black tracking-tighter leading-[0.8] uppercase italic text-slate-900">
-                {title}.
-             </h1>
-          </header>
+        {/* CORE VALUES */}
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-48">
+           {[
+             { title: 'Radical Transparency', icon: <Target className="text-emerald-500" />, desc: 'We believe visibility is the foundation of trust in global trade.' },
+             { title: 'Neural Velocity', icon: <Zap className="text-indigo-500" />, desc: 'Decision making should happen at the speed of thought, not the speed of paperwork.' },
+             { title: 'Industrial Grade', icon: <Shield className="text-slate-950" />, desc: 'Security and reliability aren\'t features; they are the bedrock of our kernel.' }
+           ].map((item, i) => (
+              <motion.div 
+                key={item.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="p-12 bg-white border border-slate-100 rounded-[3rem] shadow-xl space-y-8"
+              >
+                 <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center">
+                    {item.icon}
+                 </div>
+                 <h3 className="text-2xl font-black uppercase italic tracking-tight">{item.title}</h3>
+                 <p className="text-slate-500 font-medium leading-relaxed">{item.desc}</p>
+              </motion.div>
+           ))}
+        </section>
 
-          <div className="prose prose-slate max-w-none">
-             <section className="space-y-12">
-                <p className="text-2xl text-slate-400 font-medium leading-relaxed italic border-l-4 border-emerald-500 pl-8">
-                   "This document details the operational framework and guidelines governing the {title} protocol within the zo.flow ecosystem."
-                </p>
-                
-                <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic">01. Operational Scope</h3>
-                <p className="text-slate-500 leading-relaxed font-medium">
-                   The zo.flow platform operates as a unified mission-control hub for global trade orchestration. This module ensures that all platform communications, data transfers, and logistical commands follow the strict {title} standards set by our secure kernel.
-                </p>
-
-                <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic">02. Data Integrity & Sync</h3>
-                <p className="text-slate-500 leading-relaxed font-medium">
-                   In accordance with SOC2 and GDPR requirements, our platform utilizes millisecond-exact historical auditing. Every action taken within the {title} environment is verified through our proprietary Neural Flux engine before being committed to the permanent ledger.
-                </p>
-
-                <div className="bg-slate-50 p-12 rounded-[3rem] border border-slate-100 flex items-center gap-8">
-                   <div className="w-16 h-16 rounded-[1.5rem] bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
-                      <MessageSquare size={24} />
+        {/* TEAM SECTION */}
+        <section className="space-y-24 mb-48">
+           <div className="flex flex-col lg:flex-row justify-between items-end gap-12">
+              <h2 className="text-5xl lg:text-7xl font-black tracking-tighter uppercase italic">The. Engineers.</h2>
+              <div className="text-[11px] font-black uppercase tracking-[0.5em] text-slate-400">Architects of zo.flow // Stable_1.4.2</div>
+           </div>
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+              {[
+                { name: 'Dr. Alex Chen', role: 'Neural Architect', id: '01' },
+                { name: 'Sarah Jenkins', role: 'Logistics Protocol', id: '02' },
+                { name: 'Marcus Thorne', role: 'Telemetry Specialist', id: '03' },
+                { name: 'Elena Vance', role: 'Security Ops', id: '04' }
+              ].map((member) => (
+                <div key={member.name} className="space-y-6 group">
+                   <div className="aspect-[3/4] bg-slate-100 rounded-[2.5rem] relative overflow-hidden flex items-center justify-center text-slate-200">
+                      <Users size={80} className="group-hover:scale-110 transition-transform duration-500" />
+                      <div className="absolute top-8 left-8 text-[10px] font-black opacity-30 tracking-widest italic">{member.id} // ID</div>
                    </div>
                    <div>
-                      <h4 className="text-lg font-black text-slate-900 uppercase italic mb-2 tracking-tight">Need immediate clarification?</h4>
-                      <p className="text-sm font-medium text-slate-400">Our mission support team is active 24/7 to resolve complex operational queries.</p>
+                      <h4 className="text-xl font-black uppercase italic tracking-tight">{member.name}</h4>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{member.role}</p>
                    </div>
                 </div>
-             </section>
-          </div>
-       </article>
+              ))}
+           </div>
+        </section>
 
-       {/* FOOTER MINI */}
-       <div className="fixed bottom-12 right-12 opacity-30 text-[9px] font-black uppercase tracking-[0.5em] flex items-center gap-6">
-          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          Mission_Live // {title}_ACTIVE
-       </div>
+        {/* GLOBAL REACH */}
+        <section className="p-24 bg-slate-950 rounded-[4rem] relative overflow-hidden text-center text-white">
+           <div className="absolute inset-0 opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay" />
+           <Globe size={160} className="mx-auto mb-16 opacity-20 animate-spin-slow" />
+           <h2 className="text-5xl lg:text-8xl font-black tracking-tighter uppercase italic mb-8">Global. Scale.</h2>
+           <p className="text-lg lg:text-2xl text-slate-400 font-medium max-w-2xl mx-auto leading-relaxed italic mb-16">
+              Processing 1.4M transactions daily across 42 countries. Powered by a neural network that never sleeps.
+           </p>
+           <div className="flex justify-center gap-12 text-emerald-500 text-[11px] font-black uppercase tracking-[0.5em]">
+              <div className="flex items-center gap-3"><Activity size={14} /> 99.9% Uptime</div>
+              <div className="flex items-center gap-3"><Shield size={14} /> SOC2 Compliant</div>
+           </div>
+        </section>
+      </main>
     </div>
   )
 }

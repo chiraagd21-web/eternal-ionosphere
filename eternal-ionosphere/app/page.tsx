@@ -344,7 +344,7 @@ export default function LandingPage() {
               </p>
            </div>
            {[
-             { title: 'Intelligence', links: ['Search Agent', 'Inventoryocalization', 'Pricing Audit', 'Governance'] },
+             { title: 'Company', links: ['About', 'Careers', 'Pricing', 'Contact'] },
              { title: 'Information Protocol', links: ['Privacy Policy', 'Terms of Access', 'Security Gate', 'Compliance'] }
            ].map((group) => (
               <div key={group.title} className="space-y-12">
