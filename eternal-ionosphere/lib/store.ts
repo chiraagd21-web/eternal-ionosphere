@@ -26,17 +26,25 @@ const hybridStorage: StateStorage = {
     // Background sync - Non-blocking
     const syncWithCloud = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const userId = session?.user?.id;
-        if (!userId) return;
-
+        const { data: { session }, error: authError } = await supabase.auth.getSession();
+        if (authError || !session?.user?.id) return;
+        
+        const userId = session.user.id;
         const parsed = JSON.parse(value);
-        await supabase.from('app_state').upsert({
+        
+        // Skip sync if this state was just pulled from the cloud to prevent loops
+        if (parsed.state?._isSyncing) return;
+
+        const { error: upsertError } = await supabase.from('app_state').upsert({
           id: name,
           user_id: userId,
-          state: parsed.state,
+          state: { ...parsed.state, _lastSyncedAt: new Date().toISOString() },
           updated_at: new Date().toISOString()
-        }, { onConflict: 'id,user_id' });
+        });
+
+        if (upsertError) {
+          console.error('SUPABASE_UPSERT_ERROR:', upsertError.message, upsertError.details);
+        }
       } catch (err) {
         console.warn('CLOUD_SYNC_STALLED:', err);
       }
@@ -124,8 +132,9 @@ interface AppState {
   addDailyRecord: (skuId: string, date: string, qty?: number, sales?: number) => void
   clearPutAway: (itemId: string) => void
   deductFromLocation: (skuId: string, rack: string, qty: number) => void
-  _isHydrated: boolean
+   _isHydrated: boolean
   setHydrated: (val: boolean) => void
+  _isSyncing: boolean
   syncFromCloud: () => Promise<void>
 }
 
@@ -149,13 +158,17 @@ export const useAppStore = create<AppState>()(
       rackPositions: {},
       _isHydrated: false,
       setHydrated: (val) => set({ _isHydrated: val }),
+      _isSyncing: false,
       
       syncFromCloud: async () => {
         try {
-          const { data: { session } } = await supabase.auth.getSession();
-          const userId = session?.user?.id;
-          if (!userId) return;
-
+          const { data: { session }, error: authError } = await supabase.auth.getSession();
+          if (authError || !session?.user?.id) {
+             console.log('SYNC_SKIPPED: No active session');
+             return;
+          }
+          
+          const userId = session.user.id;
           const { data, error } = await supabase
             .from('app_state')
             .select('state')
@@ -163,8 +176,17 @@ export const useAppStore = create<AppState>()(
             .eq('user_id', userId)
             .maybeSingle();
 
+          if (error) {
+            console.error('CLOUD_FETCH_ERROR:', error.message);
+            return;
+          }
+
           if (data?.state) {
-            set({ ...data.state as any });
+            console.log('CLOUD_STATE_RESTORED');
+            // Mark as syncing to prevent setItem from pushing it right back
+            set({ ...data.state as any, _isSyncing: true });
+            // Reset syncing flag after a short delay
+            setTimeout(() => set({ _isSyncing: false }), 1000);
           }
         } catch (err) {
           console.error('CLOUD_RESTORE_FAILURE:', err);
