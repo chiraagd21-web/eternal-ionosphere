@@ -56,10 +56,10 @@ const Nav = () => (
       <div className="text-xl font-black uppercase tracking-[0.2em] text-slate-950 italic">zo.flow</div>
     </Link>
     <div className="hidden lg:flex items-center gap-12 font-bold uppercase tracking-[0.2em] text-[10px] text-slate-400">
-      <Link href="/features" className="hover:text-slate-950 transition-all">Inventory Controller</Link>
-      <Link href="/solutions" className="hover:text-slate-950 transition-all">Sourcing Agent</Link>
-      <Link href="/pricing" className="hover:text-slate-950 transition-all">Freight HUD</Link>
-      <Link href="/company" className="hover:text-slate-950 transition-all">Governance</Link>
+      <Link href="/about" className="hover:text-slate-950 transition-all">About</Link>
+      <Link href="/careers" className="hover:text-slate-950 transition-all">Careers</Link>
+      <Link href="/pricing" className="hover:text-slate-950 transition-all">Pricing</Link>
+      <Link href="/contact" className="hover:text-slate-950 transition-all">Contact</Link>
     </div>
     <Link href="/login" className="px-10 py-3.5 bg-slate-950 text-white text-[10px] font-black uppercase tracking-[0.5em] rounded-full hover:bg-emerald-600 transition-all shadow-2xl hover:scale-105 active:scale-95">Login</Link>
   </motion.nav>
