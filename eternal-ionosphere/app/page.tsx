@@ -28,340 +28,404 @@ import {
   GanttChart
 } from 'lucide-react'
 
-// --- KINETIC BACKGROUND ---
-const KineticFlux = () => (
-  <div className="fixed inset-0 -z-10 bg-[#fdfdfd] overflow-hidden pointer-events-none">
-     <motion.div 
-       animate={{ opacity: [0.1, 0.2, 0.1] }}
-       transition={{ duration: 8, repeat: Infinity }}
-       className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#10b98111_0%,_transparent_70%)]" 
-     />
-     <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #10b981 1px, transparent 0)', backgroundSize: '40px 40px' }} />
-  </div>
-)
-
 // --- NAV ---
 const Nav = () => (
   <motion.nav 
     initial={{ y: -50, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
     transition={{ type: "spring", stiffness: 300, damping: 30 }}
-    className="fixed top-0 left-0 w-full p-6 lg:p-10 flex justify-between items-center z-[100] bg-white/80 backdrop-blur-3xl border-b border-slate-100"
+    className="fixed top-0 left-0 w-full p-6 lg:px-10 lg:py-5 flex justify-between items-center z-[100] bg-[#0A0A0A]/60 backdrop-blur-xl border-b border-white/5"
   >
-    <Link href="/" className="flex items-center gap-6 group">
-      <svg width="34" height="12" viewBox="0 0 32 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-slate-950 group-hover:rotate-180 transition-transform duration-500">
-         <circle cx="6" cy="6" r="6" fill="currentColor"/>
-         <rect x="18" y="2" width="14" height="8" fill="currentColor"/>
-      </svg>
-      <div className="text-xl font-black uppercase tracking-[0.2em] text-slate-950 italic">zo.flow</div>
+    <Link href="/" className="flex items-center gap-4 group">
+      <div className="w-8 h-8 rounded bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+        <Zap size={16} className="group-hover:scale-110 transition-transform"/>
+      </div>
+      <div className="text-xl font-bold tracking-tight text-white">zo.flow</div>
     </Link>
-    <div className="hidden lg:flex items-center gap-12 font-bold uppercase tracking-[0.2em] text-[10px] text-slate-400">
-      <Link href="/about" className="hover:text-slate-950 transition-all">About</Link>
-      <Link href="/careers" className="hover:text-slate-950 transition-all">Careers</Link>
-      <Link href="/pricing" className="hover:text-slate-950 transition-all">Pricing</Link>
-      <Link href="/contact" className="hover:text-slate-950 transition-all">Contact</Link>
+    <div className="hidden lg:flex items-center gap-8 font-medium text-sm text-neutral-400">
+      <Link href="/product" className="hover:text-white transition-all">Product</Link>
+      <Link href="/solutions" className="hover:text-white transition-all">Solutions</Link>
+      <Link href="/pricing" className="hover:text-white transition-all">Pricing</Link>
+      <Link href="/changelog" className="hover:text-white transition-all">Changelog</Link>
     </div>
-    <Link href="/login" className="px-10 py-3.5 bg-slate-950 text-white text-[10px] font-black uppercase tracking-[0.5em] rounded-full hover:bg-emerald-600 transition-all shadow-2xl hover:scale-105 active:scale-95">Login</Link>
+    <div className="flex items-center gap-4">
+      <Link href="/login" className="px-5 py-2 text-sm font-medium text-white hover:text-emerald-400 transition-colors hidden sm:block">Sign in</Link>
+      <Link href="/login" className="px-5 py-2 bg-white text-black text-sm font-medium rounded-full hover:bg-neutral-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]">Get Started</Link>
+    </div>
   </motion.nav>
 )
 
-// --- SIMULATED VIDEO COMPONENTS ---
-const SourcingVideo = () => (
-  <div className="w-full h-full bg-slate-50 relative overflow-hidden flex flex-col p-8 gap-4">
-     <div className="flex gap-4 mb-4">
-        <div className="w-full bg-white border border-slate-100 p-4 rounded-full flex items-center gap-4 text-slate-300">
-           <Search size={16} /> <span className="text-[10px] font-bold uppercase tracking-widest italic">Scanning_Global_Silos...</span>
+// --- MOCKUP COMPONENTS FOR "VIDEO" REPLACEMENT ---
+const SourcingMockup = () => (
+  <div className="w-full h-full bg-[#0F0F11] relative overflow-hidden flex flex-col p-6 rounded-[1.4rem] border border-white/5 shadow-2xl">
+     <div className="flex gap-4 mb-6 border-b border-white/5 pb-4">
+        <div className="w-full bg-[#1A1A1C] border border-white/5 p-3 rounded-xl flex items-center gap-3 text-neutral-400">
+           <Search size={16} /> <span className="text-xs font-medium">Scanning global silos for optimal tensor cores...</span>
         </div>
      </div>
-     <div className="space-y-4">
+     <div className="space-y-3 flex-1 overflow-hidden relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0F0F11] z-10 pointer-events-none" />
         {[
-          { name: 'Apple_v4X', price: '$1,299', site: 'APPLE.COM' },
-          { name: 'Samsung_S24', price: '$1,199', site: 'AMAZON.US' },
-          { name: 'Intel_Xeon', price: '$2,400', site: 'DIGIKEY' }
+          { name: 'NVIDIA H100 Tensor Core', price: '$30,500', site: 'SUPPLIER_01', latency: '4ms' },
+          { name: 'AMD Instinct MI300X', price: '$22,100', site: 'SUPPLIER_02', latency: '8ms' },
+          { name: 'Intel Gaudi 3 AI Accl', price: '$18,000', site: 'SUPPLIER_03', latency: '12ms' }
         ].map((item, i) => (
            <motion.div 
              key={i}
-             initial={{ x: -100, opacity: 0 }}
-             animate={{ x: 0, opacity: 1 }}
-             transition={{ delay: i * 0.5, duration: 0.8, repeat: Infinity, repeatDelay: 5 }}
-             className="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm flex justify-between items-center"
+             initial={{ x: 20, opacity: 0 }}
+             whileInView={{ x: 0, opacity: 1 }}
+             viewport={{ once: true }}
+             transition={{ delay: i * 0.2, duration: 0.6 }}
+             className="bg-[#151517] border border-white/5 p-4 rounded-xl flex justify-between items-center group hover:bg-[#1C1C1F] transition-colors relative overflow-hidden"
            >
-              <div className="flex items-center gap-4">
-                 <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400"><Monitor size={16} /></div>
+              <motion.div 
+                 animate={i === 0 ? { opacity: [0, 0.1, 0] } : {}} 
+                 transition={{ duration: 2, repeat: Infinity }}
+                 className="absolute inset-0 bg-emerald-500 pointer-events-none" 
+              />
+              <div className="flex items-center gap-4 relative z-10">
+                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${i === 0 ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-500' : 'bg-white/5 border border-white/10 text-neutral-400'}`}>
+                    <Cpu size={16} />
+                 </div>
                  <div>
-                    <div className="text-[10px] font-black text-slate-950 uppercase italic tracking-widest">{item.name}</div>
-                    <div className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">{item.site}</div>
+                    <div className="text-sm font-semibold text-white">{item.name}</div>
+                    <div className="text-xs text-neutral-500 font-mono mt-0.5">{item.site} • {item.latency}</div>
                  </div>
               </div>
-              <div className="text-right">
-                 <div className="text-[14px] font-black italic text-emerald-500">{item.price}</div>
-                 <div className="text-[8px] font-bold uppercase tracking-[0.2em] text-slate-300">Real-Time Sync</div>
+              <div className="text-right relative z-10">
+                 <div className={`text-base font-semibold ${i === 0 ? 'text-emerald-400' : 'text-neutral-300'}`}>{item.price}</div>
+                 <div className={`text-[10px] uppercase font-bold tracking-wider mt-1 ${i === 0 ? 'text-emerald-500/70' : 'text-neutral-600'}`}>{i === 0 ? 'Purchasing' : 'Available'}</div>
               </div>
            </motion.div>
         ))}
      </div>
-     <div className="absolute inset-0 border-[10px] border-white/50 pointer-events-none rounded-[3rem]" />
   </div>
 )
 
-const WarehouseVideo = () => (
-  <div className="w-full h-full bg-white relative overflow-hidden p-8 flex flex-col justify-center">
-     <div className="aspect-[4/3] relative rounded-3xl border border-slate-100 bg-slate-50/50 p-6">
-        <div className="absolute top-6 left-6 text-[9px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-3">
-           <Workflow size={12} /> Spatial_Inventory_Heatmap
+const TelemetryMockup = () => (
+  <div className="w-full h-full bg-[#0F0F11] relative overflow-hidden rounded-[1.4rem] border border-white/5 p-8 flex flex-col shadow-2xl">
+     <div className="flex justify-between items-start mb-12 relative z-10">
+        <div>
+           <div className="flex items-center gap-2 text-indigo-400 mb-2">
+              <div className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
+              <span className="text-[10px] font-bold uppercase tracking-widest">Live Routing</span>
+           </div>
+           <div className="text-xl font-bold text-white">Global Transit HUD</div>
         </div>
-        <div className="grid grid-cols-6 grid-rows-6 gap-3 h-full pt-8">
-           {[...Array(36)].map((_, i) => (
-              <motion.div 
-                key={i}
-                animate={{ 
-                   backgroundColor: ['#f8fafc', '#10b981', '#f8fafc'],
-                   opacity: [0.3, 0.8, 0.3]
-                }}
-                transition={{ 
-                   duration: 4, 
-                   repeat: Infinity, 
-                   delay: Math.random() * 4,
-                   ease: "easeInOut"
-                }}
-                className="w-full h-full rounded-md border border-slate-100/50"
-              />
-           ))}
+        <div className="px-3 py-1 bg-white/5 rounded-md border border-white/10 text-xs font-mono text-neutral-300">
+           PORT_LAX • ACTIVE
+        </div>
+     </div>
+     
+     {/* Simulated Map / Node Grid */}
+     <div className="absolute inset-x-8 bottom-8 top-32 border border-white/5 rounded-xl bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 overflow-hidden" />
+     
+     <div className="absolute inset-x-8 bottom-8 top-32 border border-white/5 rounded-xl overflow-hidden pointer-events-none">
+         <div className="absolute w-[200%] h-[200%] -left-1/2 -top-1/2 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] [transform:perspective(500px)_rotateX(60deg)] origin-center" />
+     </div>
+     
+     {/* Floating nodes routing animation */}
+     <div className="absolute inset-x-8 bottom-8 top-32 pointer-events-none overflow-hidden rounded-xl z-20">
+        <svg fill="none" className="w-full h-full absolute inset-0 text-white/10" viewBox="0 0 100 100" preserveAspectRatio="none">
+           <path d="M10,90 Q40,40 90,10" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" />
+        </svg>
+        <motion.div 
+           initial={{ left: '10%', top: '90%' }}
+           animate={{ left: '90%', top: '10%' }}
+           transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+           className="absolute w-3 h-3 bg-indigo-500 rounded-full shadow-[0_0_15px_#6366f1] -translate-x-1.5 -translate-y-1.5" 
+        />
+        <div className="absolute bottom-[10%] left-[10%] w-6 h-6 bg-white/10 backdrop-blur-md rounded-full border border-white/20 flex items-center justify-center -translate-x-3 -translate-y-3">
+           <Truck size={10} className="text-white" />
+        </div>
+        <div className="absolute top-[10%] right-[10%] w-6 h-6 bg-indigo-500/20 backdrop-blur-md rounded-full border border-indigo-500/50 flex items-center justify-center -translate-x-3 -translate-y-3">
+           <AnchorIcon size={10} className="text-indigo-400" />
         </div>
      </div>
   </div>
 )
 
-const TelemetryVideo = () => (
-  <div className="w-full h-full bg-slate-950 relative overflow-hidden">
-     <div className="absolute inset-0 opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay" />
-     <div className="w-full h-full p-12 flex flex-col justify-between relative z-10">
-        <div className="flex justify-between items-start">
-           <div className="space-y-4">
-              <div className="text-emerald-500 text-[10px] font-black uppercase tracking-[1em] mb-4">Global_Telemetrics</div>
-              <div className="text-white text-3xl font-black italic tracking-tighter uppercase leading-none">Transit_HUD<br />Active.</div>
-           </div>
-           <div className="p-4 bg-white/5 backdrop-blur-3xl rounded-2xl border border-white/10 flex items-center gap-4">
-              <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
-              <div className="text-[10px] font-bold text-white uppercase tracking-widest">v4.0_Stable</div>
-           </div>
-        </div>
-        <div className="relative h-64 border-t border-white/5 flex items-end p-8 gap-4 overflow-hidden">
-           {[...Array(20)].map((_, i) => (
-              <motion.div 
-                key={i}
-                animate={{ 
-                   height: [20, 100, 20],
-                   opacity: [0.1, 0.5, 0.1]
-                }}
-                transition={{ duration: 3, repeat: Infinity, delay: i * 0.1 }}
-                className="flex-1 bg-emerald-500/50 rounded-t-full"
-              />
-           ))}
-        </div>
-     </div>
-  </div>
+const AnchorIcon = ({size, className}:any) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="5" r="3"/><line x1="12" x2="12" y1="22" y2="8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/></svg>
 )
 
-// --- NARRATIVE ENGINE ---
-const Hero = () => {
-  return (
-    <section className="h-screen w-full flex flex-col items-center justify-center relative p-12">
-       <div className="text-emerald-500 text-[11px] font-black uppercase tracking-[1em] mb-12 flex items-center gap-6">
-          <Zap size={14} className="fill-emerald-500" /> Operational Intelligence OS
-       </div>
-       <h1 className="text-7xl lg:text-[13rem] font-black tracking-tighter leading-[0.75] text-slate-950 uppercase italic text-center">
-          Building.<br />The. Future.
-       </h1>
-       <p className="text-xl lg:text-3xl text-slate-400 font-medium max-w-4xl mx-auto leading-relaxed mt-16 italic text-center selection:bg-emerald-500 selection:text-white">
-          Zo.flow solves the fragmentation of global commerce by unifying cross-platform procurement, spatial inventory localization, and real-time freight telemetry into a single, industrial-grade operating system.
-       </p>
-    </section>
-  )
-}
-
-const FeatureSection = ({ title, subtitle, desc, video: VideoComponent, align = 'left' }: any) => {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: false, amount: 0.2 })
-  
-  return (
-    <section ref={ref} className="min-h-screen w-full flex items-center justify-center p-8 lg:p-24 relative overflow-hidden bg-white border-t border-slate-50">
-       <div className={`max-w-7xl w-full flex flex-col ${align === 'right' ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center gap-16 lg:gap-32`}>
-          <div className="flex-1 space-y-12">
-             <motion.div
-               initial={{ opacity: 0, y: 30 }}
-               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-               transition={{ type: "spring", stiffness: 400, damping: 30 }}
-             >
-                <div className="text-emerald-500 text-[11px] font-black uppercase tracking-[1em] mb-12 italic">{subtitle}</div>
-                <h2 className="text-6xl lg:text-[8rem] font-black tracking-tighter leading-[0.8] text-slate-950 uppercase italic mb-12">
-                   {title}
-                </h2>
-                <div className="space-y-10">
-                   <p className="text-xl text-slate-400 font-medium leading-relaxed max-w-xl italic">
-                      {desc}
-                   </p>
-                   <div className="w-20 h-px bg-slate-200" />
-                   <ul className="space-y-6">
-                      {[
-                        'Millisecond API Synchronization',
-                        'High-Fidelity Neural Mapping',
-                        'Autonomous Contract Execution'
-                      ].map((item, i) => (
-                        <li key={i} className="flex items-center gap-4 text-[11px] font-black text-slate-950 uppercase tracking-[0.2em]">
-                           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> {item}
-                        </li>
-                      ))}
-                   </ul>
-                </div>
-                <div className="pt-16">
-                   <Link href="/login" className="px-12 py-5 bg-slate-950 text-white text-[11px] font-black uppercase tracking-[0.5em] rounded-full hover:bg-emerald-600 transition-all shadow-2xl flex items-center justify-center gap-4 w-fit">
-                      Login <ArrowRight size={18} />
-                   </Link>
-                </div>
-             </motion.div>
-          </div>
-          <div className="flex-1 w-full relative">
-             <div className="w-full aspect-square rounded-[4rem] overflow-hidden shadow-2xl border border-slate-100 bg-white group relative">
-                <VideoComponent />
-                <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent pointer-events-none" />
-                <div className="absolute top-10 right-10 flex gap-2">
-                   <div className="px-6 py-3 bg-white/90 backdrop-blur-xl shadow-2xl rounded-full text-[10px] font-black text-slate-950 tracking-[0.3em] border border-slate-50 flex items-center gap-3">
-                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" /> LIVE_SYNC
-                   </div>
-                </div>
-                <div className="absolute bottom-10 left-10 flex flex-col gap-2 text-[9px] font-black text-slate-300 uppercase tracking-widest italic opacity-0 group-hover:opacity-100 transition-opacity">
-                   <span>Build_1.4.2_Production</span>
-                   <span>Authorized_Node_Primary</span>
-                </div>
-             </div>
-          </div>
-       </div>
-    </section>
-  )
-}
-
-// --- MAIN PAGE ---
+// --- MAIN PAGE LAYOUT ---
 export default function LandingPage() {
   return (
-     <div className="bg-[#fdfdfd] text-slate-950 font-sans selection:bg-emerald-500 selection:text-white">
-        <KineticFlux />
+     <div className="bg-[#0A0A0A] text-white font-sans selection:bg-emerald-500/30 selection:text-emerald-200 min-h-screen">
         <Nav />
         
-        <main className="relative z-10 pt-20">
-           <Hero />
-           
-           <FeatureSection 
-             title={<>Sourcing<br />Agent.</>} 
-             subtitle="CROSS_PLATFORM_PROCUREMENT"
-             video={SourcingVideo}
-             desc="Zo.flow eliminates manual price comparisons by scanning cross-platform markets simultaneously. Unify your retail silos and industrial suppliers into a single, millisecond-exact procurement ledger."
-           />
-
-           <FeatureSection 
-             title={<>Warehouse<br />Command.</>} 
-             subtitle="3D_INVENTORY_LOCALIZATION"
-             video={WarehouseVideo}
-             align="right"
-             desc="Solve facility blind spots with spatial inventory localized heatmaps. Our high-fidelity neural mapping engine optimizes picking paths and facility throughput automatically."
-           />
-
-           <FeatureSection 
-             title={<>Transit.<br />HUD.</>} 
-             subtitle="GLOBAL_FREIGHT_TELEMETRY"
-             video={TelemetryVideo}
-             desc="Gain absolute visibility into your global movement. Zo.flow monitors ELD positions, port congestion, and shipping lane telemetrics with zero latency to prevent chain disruptions."
-           />
-
-           {/* STRATEGIC EVALUATION (RFx) */}
-           <section className="min-h-screen w-full flex flex-col items-center justify-center p-24 text-center border-t border-slate-50">
-              <div className="text-emerald-500 text-[11px] font-black uppercase tracking-[1em] mb-12 flex items-center gap-6">
-                 <ShieldCheck size={16} /> Autonomous_RFx_Reconciliation
-              </div>
-              <h2 className="text-7xl lg:text-[13rem] font-black tracking-tighter leading-none text-slate-950 uppercase italic mb-20">
-                 The. Data.<br />Authority.
-              </h2>
-              <p className="text-xl lg:text-3xl text-slate-400 font-medium max-w-5xl mx-auto leading-relaxed italic mb-24 font-serif">
-                 "Automate your contractual handshakes. Verify Tier-1 suppliers in milliseconds using our autonomous neural scoring engine."
+        <main className="relative z-10 pt-40 pb-20">
+           {/* HERO */}
+           <section className="max-w-6xl mx-auto px-6 lg:px-10 flex flex-col items-center text-center mb-40 relative">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none" />
+              
+              <Link href="/changelog" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-neutral-300 mb-8 hover:bg-white/10 transition-colors relative z-10">
+                 <span className="text-emerald-400 font-bold">What's New</span> Announcing Neural Procurement Engine v2 <ArrowRight size={12} />
+              </Link>
+              
+              <h1 className="text-5xl sm:text-6xl lg:text-[6rem] font-bold tracking-tighter leading-[1.05] text-white max-w-5xl mb-8 relative z-10 drop-shadow-2xl">
+                 The operating system for <span className="text-transparent bg-clip-text bg-gradient-to-r from-neutral-400 to-neutral-600">global supply chains.</span>
+              </h1>
+              
+              <p className="text-lg sm:text-xl text-neutral-400 max-w-2xl font-medium leading-relaxed mb-12 relative z-10">
+                 Zo.flow unifies cross-platform procurement, spatial inventory localization, and real-time freight telemetry into a single, high-performance platform.
               </p>
-              <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-4 gap-12 mt-20">
-                 {[
-                   { label: 'Latency', value: '<1ms', icon: <Zap /> },
-                   { label: 'Throughput', value: '1.4M', icon: <Activity /> },
-                   { label: 'Uptime', value: '99.9%', icon: <Command /> },
-                   { label: 'Reliability', value: '98%', icon: <Fingerprint /> }
-                 ].map((stat, i) => (
-                    <motion.div 
-                      key={stat.label}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ type: "spring", stiffness: 300, damping: 30, delay: i * 0.1 }}
-                      className="p-10 bg-white border border-slate-50 rounded-[3rem] shadow-xl hover:shadow-2xl transition-all group"
-                    >
-                       <div className="w-12 h-12 bg-slate-50 rounded-2xl mx-auto flex items-center justify-center text-slate-300 mb-8 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-all">
-                          {stat.icon}
+              
+              <div className="flex flex-col sm:flex-row items-center gap-4 relative z-10 w-full sm:w-auto">
+                 <button className="w-full sm:w-auto h-12 px-8 bg-white text-black text-sm font-semibold rounded-full hover:bg-neutral-200 transition-all shadow-[0_0_30px_rgba(255,255,255,0.15)] hover:scale-105 active:scale-95">Book Demo</button>
+                 <button className="w-full sm:w-auto h-12 px-8 bg-neutral-900 border border-neutral-800 text-white text-sm font-semibold rounded-full hover:bg-neutral-800 transition-all hover:border-neutral-700">Explore Platform</button>
+              </div>
+           </section>
+           
+           {/* ALTERNATING FEATURE SECTIONS (Pallet Style) */}
+           <div className="max-w-7xl mx-auto px-6 lg:px-10 space-y-40">
+              
+              {/* Feature 1 */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                 <motion.div 
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.6 }}
+                    className="order-2 lg:order-1 h-[450px] sm:h-[550px] w-full relative group"
+                 >
+                    <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-950 rounded-3xl p-2 border border-white/10 shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]">
+                       <SourcingMockup />
+                    </div>
+                 </motion.div>
+                 
+                 <motion.div 
+                    initial={{ opacity: 0, x: 30 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    className="order-1 lg:order-2 space-y-8 lg:pl-12"
+                 >
+                    <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 border border-emerald-500/20 shadow-[0_0_30px_rgba(16,185,129,0.15)]">
+                       <Globe size={28} />
+                    </div>
+                    <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-white leading-tight">Cross-Platform <br/> Procurement.</h2>
+                    <p className="text-lg text-neutral-400 leading-relaxed font-medium">
+                       Eliminate manual price comparisons. Zo.flow scans global markets simultaneously, unifying retail silos and industrial suppliers into a single, millisecond-exact ledger.
+                    </p>
+                    <ul className="space-y-4 pt-4 border-t border-white/5">
+                       {[
+                         'Real-time price arbitration across 140+ marketplaces',
+                         'Automated bulk purchasing workflows',
+                         'Predictive shortage warnings via ML'
+                       ].map((item, i) => (
+                         <li key={i} className="flex items-center gap-4 text-sm text-neutral-300 font-medium">
+                            <ShieldCheck size={18} className="text-emerald-500" /> {item}
+                         </li>
+                       ))}
+                    </ul>
+                 </motion.div>
+              </div>
+
+              {/* Feature 2 */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                 <motion.div 
+                    initial={{ opacity: 0, x: -30 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    className="space-y-8 lg:pr-12"
+                 >
+                    <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20 shadow-[0_0_30px_rgba(99,102,241,0.15)]">
+                       <Activity size={28} />
+                    </div>
+                    <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-white leading-tight">Global Freight <br/> Telemetry.</h2>
+                    <p className="text-lg text-neutral-400 leading-relaxed font-medium">
+                       Gain absolute visibility into your geographic movement. Monitor ELD positions, port congestion, and intermodal shipping lines with zero latency.
+                    </p>
+                    <div className="pt-4 border-t border-white/5">
+                        <Link href="/telemetry" className="inline-flex items-center justify-center gap-2 h-12 px-6 bg-white/5 border border-white/10 rounded-full text-sm font-semibold text-white hover:bg-white/10 hover:border-white/20 transition-all">
+                           Explore Telemetry <ArrowRight size={16} />
+                        </Link>
+                    </div>
+                 </motion.div>
+                 
+                 <motion.div 
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.6 }}
+                    className="h-[450px] sm:h-[550px] w-full relative group"
+                 >
+                    <div className="absolute inset-0 bg-gradient-to-tl from-neutral-800 to-neutral-950 rounded-3xl p-2 border border-white/10 shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]">
+                       <TelemetryMockup />
+                    </div>
+                 </motion.div>
+              </div>
+
+           </div>
+
+           {/* BENTO GRID (Pallet Style) */}
+           <section className="max-w-7xl mx-auto px-6 lg:px-10 mt-48">
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-16 gap-8">
+                 <div>
+                    <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-6 text-white">Command the stack.</h2>
+                    <p className="text-lg text-neutral-400 max-w-xl">Everything you need to orchestrate complex global operations in a unified interface.</p>
+                 </div>
+                 <Link href="/features" className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors">
+                    View all features <ArrowRight size={16} />
+                 </Link>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 
+                 {/* Card 1 */}
+                 <motion.div 
+                    whileHover={{ y: -5 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    className="bg-[#111111] border border-white/5 rounded-3xl p-10 flex flex-col justify-between group hover:border-white/10 h-[450px] relative overflow-hidden"
+                 >
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full pointer-events-none" />
+                    <div className="relative z-10 space-y-4 max-w-sm">
+                       <div className="w-12 h-12 rounded-xl bg-neutral-900 border border-white/5 flex items-center justify-center text-neutral-300 mb-8 shadow-inner">
+                          <Database size={24} />
                        </div>
-                       <div className="text-5xl font-black text-slate-950 tracking-tighter italic mb-4">
-                          {stat.value}
+                       <h3 className="text-2xl font-bold text-white">Neural Mapping</h3>
+                       <p className="text-neutral-400 text-base leading-relaxed">
+                          Solve facility blind spots with spatial inventory heatmaps. High-fidelity rendering optimizes picking paths natively.
+                       </p>
+                    </div>
+                    {/* Simulated visual inside bento */}
+                    <div className="absolute right-0 bottom-0 w-3/4 h-[55%] bg-[#0A0A0A] border-t border-l border-white/5 rounded-tl-3xl p-6 overflow-hidden shadow-2xl flex flex-col gap-2">
+                       <div className="text-[10px] font-mono text-neutral-500 mb-2 uppercase tracking-widest flex items-center gap-2"><Box size={10}/> Heatmap Grid</div>
+                       <div className="grid grid-cols-5 grid-rows-3 gap-2 h-full opacity-80">
+                          {[...Array(15)].map((_, i) => (
+                             <motion.div 
+                               key={i}
+                               animate={{ backgroundColor: ['#10b98110', '#10b98140', '#10b98110'] }}
+                               transition={{ duration: 3, repeat: Infinity, delay: (Math.random() * 2) }}
+                               className="rounded-md border border-emerald-500/10 w-full h-full"
+                             />
+                          ))}
                        </div>
-                       <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">{stat.label}</div>
-                    </motion.div>
-                 ))}
+                    </div>
+                 </motion.div>
+
+                 {/* Card 2 */}
+                 <motion.div 
+                    whileHover={{ y: -5 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    className="bg-[#111111] border border-white/5 rounded-3xl p-10 flex flex-col justify-between group hover:border-white/10 h-[450px] relative overflow-hidden"
+                 >
+                    <div className="absolute top-0 left-0 w-64 h-64 bg-rose-500/5 blur-[100px] rounded-full pointer-events-none" />
+                    <div className="relative z-10 space-y-4 max-w-sm">
+                       <div className="w-12 h-12 rounded-xl bg-neutral-900 border border-white/5 flex items-center justify-center text-neutral-300 mb-8 shadow-inner">
+                          <Fingerprint size={24} />
+                       </div>
+                       <h3 className="text-2xl font-bold text-white">Automated Compliance</h3>
+                       <p className="text-neutral-400 text-base leading-relaxed">
+                          Verify Tier-1 suppliers instantly. Our autonomous scoring engine validates ISO certifications and custom clearances.
+                       </p>
+                    </div>
+                    {/* Simulated visual inside bento */}
+                    <div className="absolute left-10 bottom-0 right-10 h-[45%] border-t border-l border-r border-white/5 rounded-t-3xl bg-[#0A0A0A] p-6 flex flex-col justify-center gap-4 shadow-2xl">
+                       <div className="h-8 w-full bg-[#151515] rounded-xl flex items-center px-4 border border-white/5">
+                          <div className="h-2 w-2 rounded-full bg-emerald-500 mr-4 shadow-[0_0_10px_#10b981]" />
+                          <div className="h-2 w-1/3 bg-white/10 rounded-full" />
+                       </div>
+                       <div className="h-8 w-full bg-[#151515] rounded-xl flex items-center px-4 border border-white/5">
+                          <div className="h-2 w-2 rounded-full bg-emerald-500 mr-4 shadow-[0_0_10px_#10b981]" />
+                          <div className="h-2 w-1/2 bg-white/10 rounded-full" />
+                       </div>
+                       <div className="h-8 w-full bg-[#151515] rounded-xl flex items-center px-4 border border-white/5 relative overflow-hidden">
+                          <motion.div animate={{ opacity: [0, 0.1, 0] }} transition={{ duration: 1.5, repeat: Infinity }} className="absolute inset-0 bg-rose-500 pointer-events-none" />
+                          <div className="h-2 w-2 rounded-full bg-rose-500 mr-4 shadow-[0_0_10px_#f43f5e]" />
+                          <div className="flex-1 flex justify-between items-center">
+                             <div className="h-2 w-2/3 bg-rose-500/30 rounded-full" />
+                             <span className="text-[9px] font-bold text-rose-500 uppercase tracking-widest">Flagged</span>
+                          </div>
+                       </div>
+                    </div>
+                 </motion.div>
+                 
+                 {/* Card 3 (Full Width) */}
+                 <motion.div 
+                    whileHover={{ y: -5 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    className="md:col-span-2 bg-gradient-to-r from-[#111111] to-[#0A0A0A] border border-white/5 rounded-3xl p-10 flex flex-col md:flex-row items-center gap-10 group hover:border-white/10 relative overflow-hidden"
+                 >
+                    <div className="absolute right-0 bottom-0 w-96 h-96 bg-white/5 blur-[120px] rounded-full pointer-events-none" />
+                    <div className="flex-1 relative z-10 space-y-6">
+                       <h3 className="text-3xl font-bold text-white">Join the leading operators</h3>
+                       <p className="text-neutral-400 text-lg leading-relaxed max-w-lg">
+                          Thousands of supply chain managers rely on Zo.flow to securely encrypt, sync, and deliver their goods on time.
+                       </p>
+                       <ul className="grid grid-cols-2 gap-4 max-w-sm pt-4">
+                          {['SOC2 Certified', 'ISO 27001', 'End-to-End Encryption', '99.99% Uptime'].map(cert => (
+                             <li key={cert} className="flex items-center gap-2 text-xs font-semibold text-neutral-300">
+                                <ShieldCheck size={14} className="text-white" /> {cert}
+                             </li>
+                          ))}
+                       </ul>
+                    </div>
+                    <div className="flex-1 w-full bg-[#151515] rounded-2xl h-64 border border-white/5 relative flex items-center justify-center shadow-xl">
+                       {/* Abstract Graphic */}
+                       <div className="absolute inset-0 flex items-center justify-center">
+                          <motion.div animate={{ rotate: 360 }} transition={{ duration: 40, repeat: Infinity, ease: "linear" }} className="w-48 h-48 rounded-full border border-dashed border-white/10 flex items-center justify-center">
+                             <motion.div animate={{ rotate: -360 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="w-32 h-32 rounded-full border border-dashed border-white/20 flex items-center justify-center">
+                                <div className="w-16 h-16 bg-white rounded-full shadow-[0_0_50px_rgba(255,255,255,0.2)] flex items-center justify-center">
+                                   <Zap size={24} className="text-black" />
+                                </div>
+                             </motion.div>
+                          </motion.div>
+                       </div>
+                    </div>
+                 </motion.div>
+
               </div>
            </section>
 
-           {/* FINAL GAUNTLET */}
-           <section className="h-screen w-full flex flex-col items-center justify-center p-24 text-center bg-slate-950 relative overflow-hidden">
-              <div className="absolute inset-0 opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay" />
-              <motion.div 
-                 initial={{ scale: 0.8, opacity: 0 }}
-                 whileInView={{ scale: 1, opacity: 1 }}
-                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                 className="relative z-10"
-              >
-                 <h2 className="text-7xl lg:text-[12rem] font-black tracking-tighter leading-none text-white uppercase italic mb-24">
-                    Ready to<br />Join.
-                 </h2>
-                 <Link href="/login" className="px-24 py-11 bg-white text-slate-950 font-black uppercase tracking-[0.6em] text-[12px] rounded-full hover:bg-emerald-400 hover:text-white transition-all shadow-[0_0_100px_rgba(255,255,255,0.1)] hover:scale-110 active:scale-95">
-                    Login Now
-                 </Link>
-              </motion.div>
-           </section>
         </main>
 
-        <footer className="py-48 px-12 lg:px-24 border-t border-slate-50 bg-white grid grid-cols-1 lg:grid-cols-4 gap-24">
-           <div className="lg:col-span-2 space-y-12">
-              <Link href="/" className="flex items-center gap-6 group">
-                <svg width="34" height="12" viewBox="0 0 32 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-slate-950 group-hover:rotate-180 transition-transform duration-500">
-                   <circle cx="6" cy="6" r="6" fill="currentColor"/>
-                   <rect x="18" y="2" width="14" height="8" fill="currentColor"/>
-                </svg>
-                <div className="text-3xl font-black uppercase tracking-[0.2em] text-slate-950 italic">zo.flow</div>
-              </Link>
-              <p className="text-lg font-medium text-slate-400 max-w-sm leading-relaxed italic">
-                 The definitive logistics operating system for modern business. Re-engineered for mission-critical clarity and industrial-grade throughput.
-              </p>
-           </div>
-           {[
-             { title: 'Company', links: ['About', 'Careers', 'Pricing', 'Contact'] },
-             { title: 'Information Protocol', links: ['Privacy Policy', 'Terms of Access', 'Security Gate', 'Compliance'] }
-           ].map((group) => (
-              <div key={group.title} className="space-y-12">
-                 <div className="text-[12px] font-black uppercase tracking-[0.6em] text-slate-950">{group.title}</div>
-                 <div className="flex flex-col gap-8">
-                    {group.links.map(link => (
-                       <Link 
-                         key={link} 
-                         href={`/${link.toLowerCase().replace(' ', '-')}`} 
-                         className="text-[11px] font-bold text-slate-400 hover:text-emerald-600 transition-all uppercase tracking-widest"
-                       >
-                          {link}
-                       </Link>
-                    ))}
+        {/* DARK FOOTER */}
+        <footer className="mt-32 pt-20 pb-10 px-6 lg:px-10 border-t border-white/5 bg-[#0a0a0a]">
+           <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between gap-16 mb-20">
+              <div className="space-y-6 max-w-sm">
+                 <Link href="/" className="flex items-center gap-4 group">
+                    <div className="w-8 h-8 rounded bg-white flex items-center justify-center text-black">
+                       <Zap size={14} />
+                    </div>
+                    <div className="text-xl font-bold tracking-tight text-white">zo.flow</div>
+                 </Link>
+                 <p className="text-neutral-500 text-sm leading-relaxed">
+                    The definitive logistics operating system for modern business. Re-engineered for mission-critical clarity down to the millisecond.
+                 </p>
+                 <div className="flex gap-4 pt-4">
+                     <div className="px-3 py-1 bg-white/5 rounded-full border border-white/10 text-xs font-medium text-neutral-400 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> All systems operational
+                     </div>
                  </div>
               </div>
-           ))}
+              <div className="flex flex-wrap gap-16 md:gap-24">
+                 {[
+                   { title: 'Product', links: ['Sourcing Engine', 'Global Telemetry', 'Warehouse HUD', 'Pricing'] },
+                   { title: 'Company', links: ['About Us', 'Changelog', 'Careers', 'Contact'] }
+                 ].map(group => (
+                    <div key={group.title} className="space-y-6">
+                       <h4 className="text-white font-semibold text-sm tracking-wide">{group.title}</h4>
+                       <div className="flex flex-col gap-4 text-sm text-neutral-500 font-medium">
+                          {group.links.map(link => (
+                             <Link key={link} href="#" className="hover:text-emerald-400 transition-colors">{link}</Link>
+                          ))}
+                       </div>
+                    </div>
+                 ))}
+              </div>
+           </div>
+           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center pt-8 border-t border-white/5 text-xs text-neutral-600 font-medium font-mono gap-4">
+              <p>© 2026 ZO.FLOW TECHNOLOGIES INC.</p>
+              <div className="flex gap-6">
+                 <Link href="#" className="hover:text-white transition-colors">PRIVACY</Link>
+                 <Link href="#" className="hover:text-white transition-colors">TERMS</Link>
+                 <Link href="#" className="hover:text-white transition-colors">SECURITY</Link>
+              </div>
+           </div>
         </footer>
      </div>
   )
