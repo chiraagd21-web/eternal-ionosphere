@@ -43,6 +43,11 @@ const getGreatCirclePoints = (start: [number, number], end: [number, number], se
 
   const d = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((lat1 - lat2) / 2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin((lon1 - lon2) / 2), 2)))
 
+  if (d === 0 || isNaN(d)) {
+    for (let i = 0; i <= segments; i++) points.push(start)
+    return points
+  }
+
   for (let i = 0; i <= segments; i++) {
     const f = i / segments
     const A = Math.sin((1 - f) * d) / Math.sin(d)
@@ -58,7 +63,7 @@ const getGreatCirclePoints = (start: [number, number], end: [number, number], se
 }
 
 const interpolateGreatCircle = (start: [number, number], end: [number, number], progress: number): [number, number] => {
-  if (progress <= 0) return start
+  if (isNaN(progress) || progress <= 0) return start
   if (progress >= 1) return end
   
   const [lat1, lon1] = start.map(toRad)
@@ -72,8 +77,9 @@ const interpolateGreatCircle = (start: [number, number], end: [number, number], 
 
   const d = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((lat1 - lat2) / 2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin((lon1 - lon2) / 2), 2)))
 
+  if (d === 0 || isNaN(d)) return start;
+
   const f = progress
-  if (d === 0) return start;
   const A = Math.sin((1 - f) * d) / Math.sin(d)
   const B = Math.sin(f * d) / Math.sin(d)
   
@@ -87,21 +93,25 @@ const interpolateGreatCircle = (start: [number, number], end: [number, number], 
 }
 
 const getLatLng = (location: string, lat?: number, lon?: number): [number, number] => {
-  if (lat !== undefined && lon !== undefined && lat !== 0 && lon !== 0) {
+  if (lat !== undefined && lon !== undefined && !isNaN(lat) && !isNaN(lon) && lat !== 0 && lon !== 0) {
     return [lat, lon]
   }
   const port = PORTS[location]
   if (port) return port
   // Try to find a partial match
-  for (const [key, val] of Object.entries(PORTS)) {
-    if (location.toLowerCase().includes(key.toLowerCase())) return val
+  if (location) {
+    for (const [key, val] of Object.entries(PORTS)) {
+      if (location.toLowerCase().includes(key.toLowerCase())) return val
+    }
   }
-  return [0, 0]
+  return [40.7128, -74.0060] // Default to NYC
 }
+
 
 const calculateProgress = (shipDateStr: string, etaStr: string) => {
   const start = new Date(shipDateStr).getTime()
   const end = new Date(etaStr).getTime()
+  if (isNaN(start) || isNaN(end) || start === end) return 0.5
   const now = new Date().getTime()
   if (now <= start) return 0
   if (now >= end) return 1
@@ -190,10 +200,13 @@ const LeafletMap = ({ shipments }: { shipments: ShipmentData[] }) => {
       const originLatLng = getLatLng(s.origin, s.originLat, s.originLon)
       const destLatLng = getLatLng(s.destination, s.destLat, s.destLon)
       
-      if (originLatLng[0] === 0 && originLatLng[1] === 0) return
+      if (isNaN(originLatLng[0]) || isNaN(originLatLng[1]) || isNaN(destLatLng[0]) || isNaN(destLatLng[1])) return
 
       const progress = calculateProgress(s.shipDate, s.eta)
       const currentPos = interpolateGreatCircle(originLatLng, destLatLng, progress)
+      
+      if (isNaN(currentPos[0]) || isNaN(currentPos[1])) return
+
       const isNearArrival = progress > 0.9
 
       // Use Great Circle path for route

@@ -62,7 +62,7 @@ export default function LoginPage() {
     
     try {
       if (isSignUp) {
-        const { error } = await signUp(email, password)
+        const { error } = await signUp(email, password, 'New User')
         if (error) throw error
         setError('Verification email sent. Check your inbox.')
       } else {
@@ -75,6 +75,10 @@ export default function LoginPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleBypass = () => {
+    router.push('/dashboard')
   }
 
   return (
@@ -94,7 +98,7 @@ export default function LoginPage() {
                <circle cx="6" cy="6" r="6" fill="currentColor"/>
                <rect x="18" y="2" width="14" height="8" fill="currentColor"/>
             </svg>
-            <div className="text-2xl font-black uppercase tracking-[0.2em] text-slate-950">zo.flow</div>
+            <div className="text-2xl font-black uppercase tracking-[0.2em] text-slate-950">Zo-flow</div>
          </Link>
       </nav>
 
@@ -161,7 +165,7 @@ export default function LoginPage() {
               </div>
            </form>
 
-           <div className="mt-16 pt-10 border-t border-slate-50 text-center">
+           <div className="mt-16 pt-10 border-t border-slate-50 flex flex-col gap-6">
               <button 
                  onClick={() => setIsSignUp(!isSignUp)}
                  className="text-[10px] font-black text-slate-300 uppercase tracking-[0.5em] hover:text-slate-950 transition-all flex items-center justify-center gap-4 mx-auto"
@@ -169,6 +173,26 @@ export default function LoginPage() {
                  {isSignUp ? 'Already have an account? Login' : "Don't have an account? Create Account"}
                  <ArrowRight size={14} />
               </button>
+
+              <div className="mt-20 flex flex-col items-center gap-10">
+                <button 
+                  onClick={() => {
+                    localStorage.removeItem('zo-flow-production-v1');
+                    alert('Master state purged. Reloading...');
+                    window.location.reload();
+                  }}
+                  className="px-8 py-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-rose-500 hover:border-rose-500/50 transition-all shadow-sm"
+                >
+                  Emergency Hub Data Reset
+                </button>
+                
+                <button 
+                  onClick={handleBypass}
+                  className="px-10 py-4 bg-slate-950 text-white rounded-3xl text-[10px] font-black uppercase tracking-[0.4em] shadow-2xl hover:bg-emerald-600 transition-all hover:scale-105 active:scale-95"
+                >
+                  Master Hub Access (Bypass)
+                </button>
+              </div>
            </div>
         </div>
 

@@ -358,11 +358,11 @@ export default function ForecastingContent() {
                   </div>
                   <div className="bg-[var(--bg-2)] border border-[var(--border)] rounded-3xl p-6 shadow-inner">
                      <div className="text-[9px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-4">Current Burn Velocity</div>
-                     <div className="text-3xl font-black text-indigo-400 tabular-nums">{activeProjections.reduce((sum, p) => sum + p.sku.utilizationRateWeek, 0).toFixed(1)} <span className="text-xs uppercase ml-1 text-indigo-400/50">/ WK</span></div>
+                     <div className="text-3xl font-black text-indigo-400 tabular-nums">{activeProjections.reduce((sum, p) => sum + (p.sku.utilizationRateWeek || 0), 0).toFixed(1)} <span className="text-xs uppercase ml-1 text-indigo-400/50">/ WK</span></div>
                   </div>
                   <div className="bg-[var(--bg-2)] border border-[var(--border)] rounded-3xl p-6 shadow-inner">
                      <div className="text-[9px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-4">Replenishment Logic</div>
-                     <div className="text-3xl font-black text-[var(--brand)] tabular-nums">4.0W <span className="text-xs uppercase ml-1 text-[var(--brand)] opacity-50">LEAD</span></div>
+                     <div className="text-3xl font-black text-[var(--brand)] tabular-nums">{(activeProjections[0]?.sku?.safetyStock ? (activeProjections[0].sku.safetyStock / 10).toFixed(1) : '4.0')}W <span className="text-xs uppercase ml-1 text-[var(--brand)] opacity-50">LEAD</span></div>
                   </div>
               </div>
             )}
@@ -547,9 +547,9 @@ export default function ForecastingContent() {
 
           {activeProjections.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              <StatCard label="Vault Safety" value={activeProjections.reduce((s,p)=>s+p.sku.safetyStock, 0)} icon={Shield} />
-              <StatCard label="Registry Horizon" value={activeProjections[0].sku.utilizationRateWeek > 0 ? (activeProjections[0].sku.qtyOnHand / activeProjections[0].sku.utilizationRateWeek).toFixed(1) + ' WKS' : 'INF'} icon={Clock} />
-              <StatCard label="Anomalous Gaps" value={activeProjections.reduce((s,p)=>s+p.totalDeficitWeeks, 0) > 0 ? `${activeProjections.reduce((s,p)=>s+p.totalDeficitWeeks, 0)} WKS` : 'ZERO'} icon={AlertTriangle} isDanger={activeProjections.some(p => p.totalDeficitWeeks > 0)} />
+              <StatCard label="Vault Safety" value={activeProjections.reduce((s,p)=>s+(p.sku.safetyStock || 0), 0)} icon={Shield} />
+              <StatCard label="Registry Horizon" value={(activeProjections[0].sku.utilizationRateWeek || 0) > 0 ? (activeProjections[0].sku.qtyOnHand / activeProjections[0].sku.utilizationRateWeek).toFixed(1) + ' WKS' : 'INF'} icon={Clock} />
+              <StatCard label="Anomalous Gaps" value={activeProjections.reduce((s,p)=>s+(p.totalDeficitWeeks || 0), 0) > 0 ? `${activeProjections.reduce((s,p)=>s+p.totalDeficitWeeks, 0)} WKS` : 'ZERO'} icon={AlertTriangle} isDanger={activeProjections.some(p => p.totalDeficitWeeks > 0)} />
               <StatCard label="Entities Tracked" value={activeProjections.length} icon={Zap} />
             </div>
           )}

@@ -1,321 +1,278 @@
 import { create } from 'zustand'
-import { persist, createJSONStorage, StateStorage } from 'zustand/middleware'
-import { supabase } from './supabase'
+import { persist } from 'zustand/middleware'
 
-// MASTER CATALOG REFERENCE FOR FORECASTING & GLOBAL SEARCH
-export const PRE_DEFINED_CATALOG = [
-  { name: 'Phone', id: 'ph11-746', category: 'Electronics', price: 999, safetyStock: 200, qtyOnHand: 0, utilizationRateMonth: 800, utilizationRateWeek: 200, growthRate: 10, growthPeriod: 'month' as 'month' | 'week' },
-  { name: 'Laptop', id: 'lt11-562', category: 'Electronics', price: 1499, safetyStock: 100, qtyOnHand: 0, utilizationRateMonth: 800, utilizationRateWeek: 200, growthRate: 8, growthPeriod: 'month' as 'month' | 'week' },
-]
-
-/**
- * ROBUST PERSISTENCE ADAPTER
- * Prioritizes LocalStorage for immediate hydration (Zero Latency)
- * and attempts background synchronization with Supabase.
- */
-const hybridStorage: StateStorage = {
-  getItem: (name: string): string | null => {
-    // Immediate local fetch to prevent hydration delays
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem(name);
-  },
-  setItem: (name: string, value: string): void => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(name, value);
-    
-    // Background sync - Non-blocking
-    const syncWithCloud = async () => {
-      try {
-        const { data: { session }, error: authError } = await supabase.auth.getSession();
-        if (authError || !session?.user?.id) return;
-        
-        const userId = session.user.id;
-        const parsed = JSON.parse(value);
-        
-        // Skip sync if this state was just pulled from the cloud to prevent loops
-        if (parsed.state?._isSyncing) return;
-
-        const { error: upsertError } = await supabase.from('app_state').upsert({
-          id: name,
-          user_id: userId,
-          state: { ...parsed.state, _lastSyncedAt: new Date().toISOString() },
-          updated_at: new Date().toISOString()
-        });
-
-        if (upsertError) {
-          console.error('SUPABASE_UPSERT_ERROR:', upsertError.message, upsertError.details);
-        }
-      } catch (err) {
-        console.warn('CLOUD_SYNC_STALLED:', err);
-      }
-    };
-    syncWithCloud();
-  },
-  removeItem: (name: string): void => {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem(name);
-  }
-};
-
-export interface InventoryLocation {
-  rack: string
-  bin?: string
-  qty: number
-}
-
-export interface DailyRecord {
-  date: string
-  qty: number
-  sales?: number
-  isManualQty?: boolean
-}
-
-export interface SKUData {
-  id: string
+export type SKUData = {
+  sku: string
   name: string
-  category: string
   qtyOnHand: number
-  safetyStock: number
-  price: number 
-  utilizationRateMonth: number
+  reorderPoint: number
+  uom: string
+  price: number
+  category: string
+  lastSync: string
+  // For Forecasting
   utilizationRateWeek: number
-  growthRate: number 
-  growthPeriod?: 'month' | 'week'
-  shipments: { name: string, date: string, qty: number }[]
-  locations: InventoryLocation[]
-  velocityCategory?: 'High' | 'Medium' | 'Low'
-  dailyRecords: DailyRecord[]
+  utilizationRateMonth: number
+  safetyStock: number
+  growthRate: number
 }
 
-export interface WarehouseZone {
+export type Recommendation = {
   id: string
-  label: string
-  racks: number
-  utilization: number
-  color: string
+  title: string
+  description: string
+  type: 'reorder' | 'optimize' | 'market' | 'risk'
+  status: 'pending' | 'executed'
+  confidence: number
 }
 
-export interface Shipment {
+export type SaleRecord = {
+  id: string
+  timestamp: string
+  items: Array<{ name: string, qty: number, price: number }>
+  total: number
+}
+
+export type Shipment = {
   id: string
   supplier: string
-  items: Array<{ id: string, name: string, qty: number }>
-  type: string
   origin: string
   destination: string
-  shipDate: string
-  eta: string
-  tracking: string
   status: string
+  eta: string
+  shipDate: string
+  type: string
+  tracking: string
+  items: any[]
+  originLat?: number
+  originLon?: number
+  destLat?: number
+  destLon?: number
 }
 
-interface AppState {
+interface AppStore {
+  // --- STATE ---
   inventory: SKUData[]
+  recommendations: Recommendation[]
+  sales: SaleRecord[]
   shipments: Shipment[]
-  zones: WarehouseZone[]
-  activeWarehouse: string
-  setActiveWarehouse: (id: string) => void
-  hoveredSKUId: string | null 
-  setHoveredSKUId: (id: string | null) => void
-  pendingPutAway: Array<{ id: string, name: string, qty: number }>
-  setInventory: (items: SKUData[]) => void
-  setShipments: (shipments: Shipment[]) => void
-  updateShipment: (id: string, patch: Partial<Shipment>) => void
-  setZones: (zones: WarehouseZone[]) => void
-  rackPositions: Record<string, [number, number, number]>
-  updateRackPosition: (rackId: string, pos: [number, number, number]) => void
-  receiveShipment: (shipmentId: string) => void
-  updateLocation: (skuId: string, rack: string, bin?: string, qty?: number) => void
-  addInventoryCount: (skuId: string, addedQty: number) => void
-  updateSKU: (skuId: string, patch: Partial<SKUData>) => void
-  addSKU: (sku: SKUData) => void
-  deleteSKU: (skuId: string) => void
-  addDailyRecord: (skuId: string, date: string, qty?: number, sales?: number) => void
+  pendingPutAway: any[]
+  isListening: boolean
+  lastVoiceCommand: string | null
+  aiStatus: 'idle' | 'analyzing' | 'executing'
+  
+  // --- ACTIONS ---
+  setInventory: (data: SKUData[]) => void
+  setShipments: (data: Shipment[]) => void
+  addSale: (sale: SaleRecord) => void
+  addInventoryCount: (sku: string, qty: number) => void
+  updateLocation: (itemId: string, rackId: string) => void
   clearPutAway: (itemId: string) => void
-  deductFromLocation: (skuId: string, rack: string, qty: number) => void
-   _isHydrated: boolean
-  setHydrated: (val: boolean) => void
-  _isSyncing: boolean
+  receiveShipment: (id: string) => void
+  executeRecommendation: (id: string) => void
+  addRecommendation: (rec: Recommendation) => void
+  setIsListening: (val: boolean) => void
+  processVoiceCommand: (cmd: string) => void
+  setAIStatus: (status: 'idle' | 'analyzing' | 'executing') => void
+  seedInitialData: () => void
   syncFromCloud: () => Promise<void>
 }
 
-export const useAppStore = create<AppState>()(
+export const useAppStore = create<AppStore>()(
   persist(
     (set, get) => ({
-      inventory: [], 
+      inventory: [],
+      recommendations: [],
+      sales: [],
       shipments: [],
-      zones: [
-        { id: 'ALL', label: 'GLOBAL GRID CORE', racks: 41, utilization: 72, color: 'indigo' },
-        { id: 'A', label: 'NEURAL CORE ALPHA', racks: 12, utilization: 84, color: 'indigo' },
-        { id: 'B', label: 'OPTIMIZED LOGISTIX', racks: 8, utilization: 62, color: 'emerald' },
-        { id: 'C', label: 'RAW DATA STORAGE', racks: 15, utilization: 91, color: 'amber' },
-        { id: 'D', label: 'EXPERIMENTAL TECH', racks: 6, utilization: 45, color: 'purple' },
-      ],
-      activeWarehouse: 'ALL',
-      setActiveWarehouse: (id) => set({ activeWarehouse: id }),
-      hoveredSKUId: null,
-      setHoveredSKUId: (id) => set({ hoveredSKUId: id }),
       pendingPutAway: [],
-      rackPositions: {},
-      _isHydrated: false,
-      setHydrated: (val) => set({ _isHydrated: val }),
-      _isSyncing: false,
+      isListening: false,
+      lastVoiceCommand: null,
+      aiStatus: 'idle',
+
+      setInventory: (data) => set({ inventory: data }),
+      setShipments: (data) => set({ shipments: data }),
       
-      syncFromCloud: async () => {
-        try {
-          const { data: { session }, error: authError } = await supabase.auth.getSession();
-          if (authError || !session?.user?.id) {
-             console.log('SYNC_SKIPPED: No active session');
-             return;
-          }
-          
-          const userId = session.user.id;
-          const { data, error } = await supabase
-            .from('app_state')
-            .select('state')
-            .eq('id', 'zo-flow-master-state-v19')
-            .eq('user_id', userId)
-            .maybeSingle();
+      addInventoryCount: (sku, qty) => set((state) => ({
+        inventory: state.inventory.map(item => 
+          item.sku === sku ? { ...item, qtyOnHand: item.qtyOnHand + qty } : item
+        )
+      })),
 
-          if (error) {
-            console.error('CLOUD_FETCH_ERROR:', error.message);
-            return;
-          }
+      updateLocation: (itemId, rackId) => set((state) => {
+         const item = (state.pendingPutAway || []).find(p => p.id === itemId)
+         if (!item) return state
 
-          if (data?.state) {
-            console.log('CLOUD_STATE_RESTORED');
-            // Mark as syncing to prevent setItem from pushing it right back
-            set({ ...data.state as any, _isSyncing: true });
-            // Reset syncing flag after a short delay
-            setTimeout(() => set({ _isSyncing: false }), 1000);
-          }
-        } catch (err) {
-          console.error('CLOUD_RESTORE_FAILURE:', err);
+         const newInventory = state.inventory.map(inv => {
+            if (inv.name === item.name || inv.sku === item.sku) {
+               return { ...inv, qtyOnHand: inv.qtyOnHand + item.qty }
+            }
+            return inv
+         })
+
+         return { inventory: newInventory }
+      }),
+
+      clearPutAway: (itemId) => set((state) => ({
+        pendingPutAway: (state.pendingPutAway || []).filter(p => p.id !== itemId)
+      })),
+
+      receiveShipment: (id) => set((state) => {
+        const shp = (state.shipments || []).find(s => s.id === id)
+        if (!shp) return state
+        
+        const newPutAway = [
+          ...(state.pendingPutAway || []),
+          ...shp.items.map(it => ({ ...it, id: `PA-${Math.random().toString(36).substr(2, 5)}` }))
+        ]
+        
+        return {
+          shipments: state.shipments.filter(s => s.id !== id),
+          pendingPutAway: newPutAway
         }
-      },
-
-      setInventory: (items) => set({ inventory: items }),
-      setShipments: (shipments) => set({ shipments }),
-      setZones: (zones) => set({ zones }),
-      updateShipment: (id, patch) => set((state) => ({ shipments: state.shipments.map(s => s.id === id ? { ...s, ...patch } : s) })),
-      updateRackPosition: (rackId, pos) => set((state) => ({
-         rackPositions: { ...state.rackPositions, [rackId]: pos }
-      })),
-      receiveShipment: (shipmentId) => set((state) => {
-         const shipment = state.shipments.find(s => s.id === shipmentId)
-         if (!shipment) return state
-         const newInventory = state.inventory.map(sku => {
-            const shipItem = shipment.items.find(si => si.name === sku.name)
-            if (shipItem) {
-               return { 
-                 ...sku, 
-                 qtyOnHand: sku.qtyOnHand + shipItem.qty,
-                 shipments: [...sku.shipments, { name: shipment.id, date: new Date().toISOString().split('T')[0], qty: shipItem.qty }]
-               }
-            }
-            return sku
-         })
-         const newShipments = state.shipments.filter(s => s.id !== shipmentId)
-         return { inventory: newInventory, shipments: newShipments, pendingPutAway: [...state.pendingPutAway, ...shipment.items] }
       }),
-      clearPutAway: (itemId) => set((state) => ({ pendingPutAway: state.pendingPutAway.filter(item => item.id !== itemId) })),
-      updateLocation: (skuId, rack, bin, qty) => set((state) => ({
-         inventory: state.inventory.map(sku => {
-           if (sku.id.toLowerCase() === skuId.toLowerCase()) {
-             const locations = [...(sku.locations || [])]
-             const existingIdx = locations.findIndex(l => l.rack === rack && l.bin === bin)
-             if (existingIdx !== -1) {
-                locations[existingIdx] = { ...locations[existingIdx], qty: qty !== undefined ? qty : locations[existingIdx].qty }
-             } else {
-                locations.push({ rack, bin, qty: qty || 0 })
-             }
-             const newTotal = locations.reduce((sum, l) => sum + l.qty, 0)
-             return { ...sku, locations, qtyOnHand: newTotal }
-           }
-           return sku
-         })
-      })),
-      deductFromLocation: (skuId, rack, qty) => set((state) => ({
-         inventory: state.inventory.map(sku => {
-           if (sku.id.toLowerCase() === skuId.toLowerCase()) {
-             const locations = (sku.locations || []).map(l => {
-                if (l.rack === rack) return { ...l, qty: Math.max(0, l.qty - qty) }
-                return l
-             }).filter(l => l.qty > 0)
-             const newTotal = locations.reduce((sum, l) => sum + l.qty, 0)
-             return { ...sku, locations, qtyOnHand: newTotal }
-           }
-           return sku
-         })
-      })),
-      addInventoryCount: (skuId, addedQty) => set((state) => ({
-         inventory: state.inventory.map(sku => sku.id.toLowerCase() === skuId.toLowerCase() ? { ...sku, qtyOnHand: sku.qtyOnHand + addedQty } : sku)
-      })),
-      updateSKU: (skuId, patch) => set((state) => ({
-        inventory: state.inventory.map(item => item.id.toLowerCase() === skuId.toLowerCase() ? { ...item, ...patch } : item)
-      })),
-      addSKU: (sku) => set((state) => {
-        const currentInv = state.inventory || [];
-        return { inventory: [...currentInv, sku] };
-      }),
-      deleteSKU: (skuId) => set((state) => ({ 
-        inventory: (state.inventory || []).filter(item => item.id.toLowerCase() !== skuId.toLowerCase()) 
-      })),
-      addDailyRecord: (skuId: string, date: string, qty?: number, sales?: number) => set((state) => ({
-        inventory: (state.inventory || []).map(item => {
-          if (item.id.toLowerCase() === skuId.toLowerCase()) {
-            let currentRecords = [...(item.dailyRecords || [])]
-            
-            if (qty === null) {
-               currentRecords = currentRecords.filter(r => r.date !== date)
-            } else {
-               const existingIdx = currentRecords.findIndex(r => r.date === date)
-               if (existingIdx !== -1) {
-                 const current = currentRecords[existingIdx]
-                 currentRecords[existingIdx] = { 
-                   ...current, 
-                   qty: qty !== undefined ? qty : current.qty, 
-                   sales: sales !== undefined ? sales : (current.sales || 0),
-                   isManualQty: qty !== undefined ? true : current.isManualQty
-                 }
-               } else {
-                 currentRecords.push({ date, qty: qty !== undefined ? qty : item.qtyOnHand, sales: sales || 0, isManualQty: qty !== undefined })
-               }
-            }
 
-            const sorted = currentRecords.sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-            let runningBalance = item.qtyOnHand
-
-            const processed = sorted.map((record) => {
-               if (record.isManualQty) runningBalance = record.qty
-               const openingBalanceToday = runningBalance
-               const closingBalanceToday = Math.max(0, openingBalanceToday - (record.sales || 0))
-               runningBalance = closingBalanceToday
-               return { ...record, qty: openingBalanceToday }
-            })
-
-            const finalClosingBalance = processed.length > 0 
-              ? processed[processed.length - 1].qty - (processed[processed.length - 1].sales || 0)
-              : item.qtyOnHand
-
-            return {
-              ...item,
-              qtyOnHand: finalClosingBalance,
-              dailyRecords: processed
-            }
+      addSale: (sale) => set((state) => {
+        const newInventory = state.inventory.map(item => {
+          const soldItem = sale.items.find(si => si.name === item.name)
+          if (soldItem) {
+            return { ...item, qtyOnHand: Math.max(0, item.qtyOnHand - soldItem.qty) }
           }
           return item
         })
+
+        const newRecommendations = [...state.recommendations]
+        newInventory.forEach(item => {
+          if (item.qtyOnHand < item.reorderPoint) {
+            const alreadyRecommended = newRecommendations.some(r => r.title.includes(item.name) && r.status === 'pending')
+            if (!alreadyRecommended) {
+              newRecommendations.unshift({
+                id: `REC-${Math.random().toString(36).substr(2, 5)}`,
+                title: `Auto-Replenish: ${item.name}`,
+                description: `Stock level (${item.qtyOnHand}${item.uom}) fell below reorder point (${item.reorderPoint}${item.uom}). Protocol initiated.`,
+                type: 'reorder',
+                status: 'pending',
+                confidence: 0.98
+              })
+            }
+          }
+        })
+
+        return { 
+          sales: [sale, ...state.sales], 
+          inventory: newInventory,
+          recommendations: newRecommendations.slice(0, 10)
+        }
+      }),
+
+      executeRecommendation: (id) => set((state) => {
+        const rec = state.recommendations.find(r => r.id === id)
+        if (!rec || rec.status === 'executed') return state
+
+        const newShipments = [...(state.shipments || [])]
+        if (rec.type === 'reorder') {
+          const itemName = rec.title.replace('Auto-Replenish: ', '').replace('Voice Reorder: ', '')
+          newShipments.unshift({
+            id: `ASN-${Math.random().toString(36).substr(2, 5)}`,
+            supplier: 'Regional Distributor',
+            origin: 'NJ Distribution Hub',
+            destination: 'LES Hub, NYC',
+            status: 'Processing',
+            eta: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+            shipDate: new Date().toISOString().split('T')[0],
+            type: 'land',
+            tracking: 'PENDING',
+            items: [{ name: itemName, qty: 50 }],
+            originLat: 40.7306, originLon: -74.0060, destLat: 40.7183, destLon: -73.9889
+          })
+        }
+
+        return { 
+          recommendations: state.recommendations.map(r => r.id === id ? { ...r, status: 'executed' } : r),
+          shipments: newShipments
+        }
+      }),
+
+      addRecommendation: (rec) => set((state) => ({
+        recommendations: [rec, ...(state.recommendations || [])].slice(0, 10)
       })),
-    }),
-    {
-      name: 'zo-flow-master-state-v19',
-      storage: createJSONStorage(() => hybridStorage),
-      version: 19,
-      onRehydrateStorage: () => (state) => {
-        state?.setHydrated(true);
-        // On hydration, trigger a cloud restore if possible
-        state?.syncFromCloud();
+
+      setIsListening: (val) => set({ isListening: val }),
+
+      setAIStatus: (status) => set({ aiStatus: status }),
+
+      syncFromCloud: async () => {
+        console.log("Cloud sync initialized...")
+      },
+
+      processVoiceCommand: (cmd) => {
+        const normalized = cmd.toLowerCase()
+        set({ lastVoiceCommand: cmd, aiStatus: 'analyzing' })
+        
+        setTimeout(() => {
+          if (normalized.includes('reorder') || normalized.includes('buy')) {
+             const lowStock = get().inventory.find(i => i.qtyOnHand < i.reorderPoint)
+             if (lowStock) {
+                get().addRecommendation({
+                  id: Math.random().toString(36).substr(2, 9),
+                  title: `Voice Reorder: ${lowStock.name}`,
+                  description: `Procuring NYC stock as requested via voice.`,
+                  type: 'reorder',
+                  status: 'pending',
+                  confidence: 0.99
+                })
+             }
+          }
+          if (normalized.includes('clear')) set({ recommendations: [] })
+          set({ aiStatus: 'idle' })
+        }, 1500)
+      },
+
+      seedInitialData: () => {
+        const nycInventory: SKUData[] = [
+          { sku: 'NYC-BKN-01', name: 'Brooklyn Roasting Beans', qtyOnHand: 18, reorderPoint: 25, uom: 'kg', price: 22.50, category: 'Coffee', lastSync: new Date().toISOString(), utilizationRateWeek: 5.2, utilizationRateMonth: 22.5, safetyStock: 10, growthRate: 1.2 },
+          { sku: 'NYC-OAT-01', name: 'Oatly Barista Edition', qtyOnHand: 42, reorderPoint: 50, uom: 'L', price: 3.80, category: 'Dairy', lastSync: new Date().toISOString(), utilizationRateWeek: 12.0, utilizationRateMonth: 50.0, safetyStock: 20, growthRate: 2.5 },
+          { sku: 'NYC-BAL-01', name: 'Balthazar Croissants', qtyOnHand: 15, reorderPoint: 20, uom: 'units', price: 4.50, category: 'Pastries', lastSync: new Date().toISOString(), utilizationRateWeek: 85.0, utilizationRateMonth: 340.0, safetyStock: 10, growthRate: 0.5 },
+          { sku: 'NYC-CUP-12', name: 'Recycled 12oz Cups', qtyOnHand: 850, reorderPoint: 500, uom: 'units', price: 0.22, category: 'Packaging', lastSync: new Date().toISOString(), utilizationRateWeek: 200, utilizationRateMonth: 850, safetyStock: 100, growthRate: 0.2 },
+          { sku: 'NYC-TEE-01', name: 'LES Limited Edition Tee', qtyOnHand: 12, reorderPoint: 10, uom: 'units', price: 55.00, category: 'Retail', lastSync: new Date().toISOString(), utilizationRateWeek: 1.5, utilizationRateMonth: 6.0, safetyStock: 5, growthRate: 15.0 },
+        ]
+
+        const nycRecs: Recommendation[] = [
+          { id: 'nyc-1', title: 'Replenish: Brooklyn Roasting', description: 'Stock at 18kg. LES branch depletion rate is up 12% today.', type: 'reorder', status: 'pending', confidence: 0.99 },
+          { id: 'nyc-2', title: 'Delay Alert: Balthazar', description: 'Holland Tunnel congestion. Arrival expected +45 mins.', type: 'risk', status: 'pending', confidence: 0.94 },
+        ]
+
+        const nycShipments: Shipment[] = [
+          { 
+            id: 'ASN-NYC-01', supplier: 'Brooklyn Roastery', origin: 'Brooklyn, NY', destination: 'LES Hub, NYC', 
+            status: 'In Transit', eta: new Date(Date.now() + 7200000).toISOString(), shipDate: new Date().toISOString(), 
+            type: 'land', tracking: 'BKN-SPR-99', items: [{ name: 'Brooklyn Roasting Beans', qty: 24 }],
+            originLat: 40.7013, originLon: -73.9875, destLat: 40.7183, destLon: -73.9889
+          },
+          { 
+            id: 'ASN-NYC-02', supplier: 'Balthazar Bakery', origin: 'SoHo, NY', destination: 'LES Hub, NYC', 
+            status: 'Delayed', eta: new Date(Date.now() + 14400000).toISOString(), shipDate: new Date().toISOString(), 
+            type: 'land', tracking: 'BAL-VAN-01', items: [{ name: 'Balthazar Croissants', qty: 40 }],
+            originLat: 40.7226, originLon: -73.9983, destLat: 40.7183, destLon: -73.9889
+          },
+        ]
+
+        set({ 
+          inventory: nycInventory, 
+          recommendations: nycRecs, 
+          shipments: nycShipments,
+          pendingPutAway: [
+            { id: 'PA-NYC-1', name: 'Oatly Barista Edition', qty: 12, sku: 'NYC-OAT-01' }
+          ]
+        })
       }
-    }
+    }),
+    { name: 'zo-flow-production-v1' }
   )
 )
+
+export const PRE_DEFINED_CATALOG = [
+  { id: 'latte', name: 'Brooklyn Roasting Beans', category: 'Coffee', uom: 'kg', price: 22.50, reorderPoint: 25, utilizationRateWeek: 5.2, utilizationRateMonth: 22.5, safetyStock: 10, growthRate: 1.2 },
+  { id: 'milk', name: 'Oatly Barista Edition', category: 'Dairy', uom: 'L', price: 3.80, reorderPoint: 50, utilizationRateWeek: 12.0, utilizationRateMonth: 50.0, safetyStock: 20, growthRate: 2.5 },
+  { id: 'croissant', name: 'Balthazar Croissants', category: 'Pastries', uom: 'units', price: 4.50, reorderPoint: 20, utilizationRateWeek: 85.0, utilizationRateMonth: 340.0, safetyStock: 10, growthRate: 0.5 }
+]

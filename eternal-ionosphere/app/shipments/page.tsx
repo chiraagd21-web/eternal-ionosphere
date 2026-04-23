@@ -34,6 +34,7 @@ const INITIAL_SHIPMENTS: any[] = []
 const calculateProgress = (shipDateStr: string, etaStr: string) => {
   const start = new Date(shipDateStr).getTime()
   const end = new Date(etaStr).getTime()
+  if (isNaN(start) || isNaN(end) || start === end) return 0
   const now = new Date().getTime()
   if (now <= start) return 0
   if (now >= end) return 1
@@ -446,7 +447,8 @@ export default function ShipmentsPage() {
   useEffect(() => {
     const poll = async () => {
       try {
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8001'
+        const isProd = window.location.hostname !== 'localhost'
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || (isProd ? '/_/backend' : 'http://localhost:8001')
         const aRes = await fetch(`${backendUrl}/ag/shipments/alerts`)
         if (aRes.ok) setAlerts(await aRes.json())
         const iRes = await fetch(`${backendUrl}/ag/shipments/insights`)
@@ -467,7 +469,8 @@ export default function ShipmentsPage() {
     
     if (shipments.length === 0) return;
     const timer = setTimeout(async () => {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8001'
+      const isProd = window.location.hostname !== 'localhost'
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || (isProd ? '/_/backend' : 'http://localhost:8001')
       for (const s of shipments) {
          fetch(`${backendUrl}/ag/shipments`, {
           method: 'POST',
@@ -480,7 +483,7 @@ export default function ShipmentsPage() {
   }, [shipments, loading])
 
   const filtered = useMemo(() => {
-    return shipments.filter(s => {
+    return (shipments || []).filter(s => {
       const q = search.toLowerCase()
       const mSearch = s.supplier?.toLowerCase().includes(q) || s.id?.toLowerCase().includes(q) || (s.items && s.items.some((it: any) => it.name.toLowerCase().includes(q)))
       const mType = filterType === 'all' || s.type === filterType
@@ -489,17 +492,17 @@ export default function ShipmentsPage() {
   }, [shipments, search, filterType])
 
   const stats = useMemo(() => ({
-    active: shipments.length,
-    sea: shipments.filter(s => s.type === 'sea').length,
-    air: shipments.filter(s => s.type === 'air').length,
-    eta7: shipments.filter(s => { const d = new Date(s.eta).getTime() - Date.now(); return d > 0 && d < 7 * 86400000 }).length
+    active: (shipments || []).length,
+    sea: (shipments || []).filter(s => s.type === 'sea').length,
+    air: (shipments || []).filter(s => s.type === 'air').length,
+    eta7: (shipments || []).filter(s => { const d = new Date(s.eta).getTime() - Date.now(); return d > 0 && d < 7 * 86400000 }).length
   }), [shipments])
 
   return (
     <div className="p-8 lg:p-12 space-y-12 animate-fade-in max-w-[1900px] mx-auto min-h-screen pb-32 bg-[var(--bg-0)] text-[var(--text-primary)]">
       
       {/* HEADER */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10">
         <div className="flex items-center gap-10">
           <div className="p-6 rounded-[1.5rem] bg-[var(--bg-2)] border border-[var(--border)] shadow-xl flex items-center justify-center">
             <ActivityIcon size={40} className="text-[var(--brand)]" />
@@ -516,6 +519,12 @@ export default function ShipmentsPage() {
             </div>
           </div>
         </div>
+        <button 
+          onClick={() => { localStorage.removeItem('zo-flow-production-v1'); window.location.reload(); }}
+          className="px-6 py-3 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all shadow-xl"
+        >
+          Reset Master State
+        </button>
       </div>
 
       {/* STATS */}

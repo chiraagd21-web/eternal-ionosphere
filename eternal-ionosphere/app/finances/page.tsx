@@ -130,14 +130,25 @@ export default function FinancesPage() {
 
           if (!qtyMatched && !priceMatched) {
             status = 'mismatch'
-            notes = `Qty mismatch (${asn.quantity} vs ${inv.quantity}) & Price mismatch (${asn.unit_price} vs ${inv.unit_price})`
+            notes = `Qty mismatch (${asn.quantity} vs ${inv.quantity}) & Price mismatch (${(asn.unit_price || 0).toFixed(2)} vs ${(inv.unit_price || 0).toFixed(2)})`
           } else if (!qtyMatched) {
             status = 'partial'
             notes = `Quantity mismatch: Received ${asn.quantity}, Billed ${inv.quantity}`
           } else if (!priceMatched) {
             status = 'mismatch'
-            notes = `Price mismatch: ASN $${asn.unit_price.toFixed(2)}, Invoice $${inv.unit_price.toFixed(2)}`
+            notes = `Price mismatch: ASN $${(asn.unit_price || 0).toFixed(2)}, Invoice $${(inv.unit_price || 0).toFixed(2)}`
           }
+
+          allMatches.push({
+            po_number: inv.po_number,
+            item_id: inv.item_id,
+            asn_qty: asn.quantity,
+            invoice_qty: inv.quantity,
+            asn_price: asn.unit_price,
+            invoice_price: inv.unit_price,
+            status,
+            notes
+          })
 
           allMatches.push({
             po_number: inv.po_number,
@@ -410,7 +421,7 @@ export default function FinancesPage() {
                       <td className="px-8 py-6 text-sm font-black tabular-nums text-[var(--text-primary)]">{res.asn_qty}</td>
                       <td className="px-8 py-6 text-sm font-black tabular-nums text-[var(--text-primary)]">{res.invoice_qty}</td>
                       <td className="px-8 py-6">
-                         <div className="text-[10px] font-black text-[var(--text-primary)] tracking-widest mb-1 tabular-nums">${res.invoice_price.toFixed(2)}</div>
+                         <div className="text-[10px] font-black text-[var(--text-primary)] tracking-widest mb-1 tabular-nums">${(res.invoice_price || 0).toFixed(2)}</div>
                          <div className="text-[8px] font-black text-[var(--text-secondary)] opacity-20 uppercase tracking-[0.2em]">INV PRICE</div>
                       </td>
                       <td className="px-8 py-6">
