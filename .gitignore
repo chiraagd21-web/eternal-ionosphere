@@ -1,0 +1,14 @@
+node_modules/
+.next/
+venv/
+.env*
+dist/
+build/
+*.tsbuildinfo
+.vercel/
+**/node_modules/
+**/venv/
+**/.next/
+**/.vercel/
+**/dist/
+**/build/
