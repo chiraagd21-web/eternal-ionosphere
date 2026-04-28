@@ -79,7 +79,7 @@ export function Sidebar() {
 
   useEffect(() => {
     setMounted(true)
-    const savedTheme = localStorage.getItem('theme') || 'synk'
+    const savedTheme = localStorage.getItem('theme') || 'bloom'
     setTheme(savedTheme)
     document.documentElement.className = `theme-${savedTheme}`
   }, [])
@@ -108,31 +108,27 @@ export function Sidebar() {
   const sidebarContent = (
     <>
       {/* Logo */}
-      <div className="p-8 lg:p-10 flex items-center justify-between">
-        <Link href="/dashboard" className="flex items-center gap-5 group">
-          <div className="flex items-center text-[var(--brand)] transition-transform group-hover:scale-110">
-            <svg width="48" height="18" viewBox="0 0 32 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <div className="p-10 flex items-center justify-between">
+        <Link href="/dashboard" className="flex items-center gap-4 group">
+          <div className="flex items-center text-black transition-transform group-hover:scale-110">
+            <svg width="24" height="10" viewBox="0 0 32 12" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="6" cy="6" r="6" fill="currentColor"/>
               <rect x="18" y="2" width="14" height="8" fill="currentColor"/>
             </svg>
           </div>
           <div className="flex flex-col">
-            <div className="font-black text-3xl text-[var(--text-primary)] leading-none tracking-tight">zo</div>
-            <div className="text-[9px] text-[var(--text-secondary)] font-black uppercase tracking-[0.3em] mt-1">Enterprise OS</div>
+            <div className="text-2xl font-black uppercase tracking-tighter italic text-slate-950">ZO.FLOW</div>
+            <div className="text-[8px] text-neutral-400 font-black uppercase tracking-[0.4em] mt-1">Operational Authority</div>
           </div>
         </Link>
-        {/* Mobile close */}
-        <button onClick={() => setMobileOpen(false)} className="lg:hidden p-2 rounded-xl hover:bg-[var(--bg-2)] transition-all">
-          <X size={20} className="text-[var(--text-secondary)]" />
-        </button>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-4 overflow-y-auto space-y-6 py-2">
+      <nav className="flex-1 px-6 overflow-y-auto space-y-8 py-2">
         {navGroups.map((group) => {
           return (
             <div key={group.label}>
-              <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-[0.3em] px-4 mb-3 opacity-50">
+              <div className="text-[9px] font-black text-black/30 uppercase tracking-[0.4em] px-4 mb-4">
                 {group.label}
               </div>
               <div className="space-y-1">
@@ -142,19 +138,18 @@ export function Sidebar() {
                     <Link 
                       key={href} 
                       href={href} 
-                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-75 group ${
+                      className={`flex items-center gap-4 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-150 group ${
                         isActive 
-                          ? 'bg-[var(--brand)]/10 text-[var(--brand)]' 
-                          : 'text-[var(--text-secondary)] hover:bg-[var(--text-secondary)]/5 hover:text-[var(--text-primary)]'
+                          ? 'bg-black text-white shadow-xl scale-[1.02]' 
+                          : 'text-neutral-500 hover:text-black hover:bg-black/5'
                       }`}
                     >
-                      <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-[var(--brand)]' : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]'}`} />
+                      <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-emerald-400' : 'text-neutral-400 group-hover:text-black'}`} />
                       <span className="truncate">{label}</span>
                       {isActive && (
                         <motion.div
                           layoutId="sidebar-active"
-                          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                          className="ml-auto w-1.5 h-1.5 rounded-full bg-[var(--brand)] shadow-[0_0_8px_var(--brand)] shrink-0"
+                          className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"
                         />
                       )}
                     </Link>
@@ -214,7 +209,7 @@ export function Sidebar() {
             onChange={(e) => setActiveWarehouse(e.target.value)}
             className="w-full bg-[var(--bg-1)] border border-[var(--border)] text-[11px] font-bold text-[var(--text-primary)] px-3 py-2 rounded-lg focus:ring-2 focus:ring-[var(--brand)] cursor-pointer appearance-none uppercase tracking-widest"
           >
-            {zones.map(z => (
+            {(Array.isArray(zones) ? zones : []).map(z => (
               <option key={z.id} value={z.id} className="bg-slate-900">{z.label}</option>
             ))}
           </select>

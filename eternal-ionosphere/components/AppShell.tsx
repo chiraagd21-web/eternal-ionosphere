@@ -16,7 +16,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isMarketingPage = marketingRoutes.includes(pathname)
 
   if (isMarketingPage) {
-    return <main className="w-full min-h-screen bg-white">{children}</main>
+    return <main className="w-full min-h-screen bg-[var(--bg-0)]">{children}</main>
   }
 
   return (

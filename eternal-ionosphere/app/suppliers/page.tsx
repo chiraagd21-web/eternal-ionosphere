@@ -106,14 +106,14 @@ export default function DeepIntelligenceSearch() {
                  <Zap className="text-white" size={28} />
               </motion.div>
               <h1 className="text-4xl lg:text-6xl font-black text-[var(--text-primary)] tracking-tight uppercase italic mb-4">
-                 Neural <span className="text-indigo-500">Search</span>
+                 Neural <span className="text-emerald-500">Search</span>
               </h1>
               <p className="text-[9px] lg:text-[10px] font-black text-[var(--text-secondary)] opacity-30 uppercase tracking-[0.5em] mb-12">Deep Sourcing & Price Comparison Engine</p>
            </>
          )}
 
          <div className="relative group max-w-3xl mx-auto">
-            <form onSubmit={(e) => { e.preventDefault(); handleSearch() }} className="relative bg-[var(--bg-1)] border border-[var(--border)] rounded-full lg:rounded-[3rem] p-1.5 lg:p-2 shadow-2xl flex items-center hover:border-indigo-500/50 transition-all focus-within:ring-8 focus-within:ring-indigo-500/5">
+            <form onSubmit={(e) => { e.preventDefault(); handleSearch() }} className="relative bg-[var(--bg-1)] border border-[var(--border)] rounded-full lg:rounded-[3rem] p-1.5 lg:p-2 shadow-2xl flex items-center hover:border-emerald-500/50 transition-all focus-within:ring-8 focus-within:ring-emerald-500/5">
                <div className="w-10 h-10 lg:w-14 lg:h-14 rounded-full flex items-center justify-center text-[var(--text-secondary)] opacity-30">
                   <Search size={24} />
                </div>
@@ -127,7 +127,7 @@ export default function DeepIntelligenceSearch() {
                />
                <button 
                  type="submit" 
-                 className="w-10 h-10 lg:w-14 lg:h-14 rounded-full bg-indigo-600 flex items-center justify-center text-white hover:bg-indigo-500 active:scale-95 transition-all shadow-xl shadow-indigo-600/30"
+                 className="w-10 h-10 lg:w-14 lg:h-14 rounded-full bg-slate-950 flex items-center justify-center text-white hover:bg-emerald-600 active:scale-95 transition-all shadow-xl shadow-emerald-500/10"
                >
                   {loading ? <Loader2 className="animate-spin" size={18} /> : <ArrowRight size={24} />}
                </button>
@@ -140,7 +140,7 @@ export default function DeepIntelligenceSearch() {
                 <button 
                   key={s} 
                   onClick={() => { setQuery(s); handleSearch(s) }}
-                  className="px-4 py-2 lg:px-6 lg:py-3 rounded-xl lg:rounded-2xl bg-[var(--bg-1)] border border-[var(--border)] text-[9px] lg:text-[11px] font-bold text-[var(--text-secondary)] opacity-40 hover:opacity-100 hover:text-indigo-400 transition-all flex items-center gap-2"
+                  className="px-4 py-2 lg:px-6 lg:py-3 rounded-xl lg:rounded-2xl bg-[var(--bg-1)] border border-[var(--border)] text-[9px] lg:text-[11px] font-bold text-[var(--text-secondary)] opacity-40 hover:opacity-100 hover:text-emerald-500 transition-all flex items-center gap-2"
                 >
                    {s}
                 </button>

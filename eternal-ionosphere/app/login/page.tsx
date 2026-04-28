@@ -94,11 +94,11 @@ export default function LoginPage() {
             Back
          </Link>
          <Link href="/" className="flex items-center gap-6 group">
-            <svg width="32" height="12" viewBox="0 0 32 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-slate-950">
+            <svg width="24" height="10" viewBox="0 0 32 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-slate-950">
                <circle cx="6" cy="6" r="6" fill="currentColor"/>
                <rect x="18" y="2" width="14" height="8" fill="currentColor"/>
             </svg>
-            <div className="text-2xl font-black uppercase tracking-[0.2em] text-slate-950">Zo-flow</div>
+            <div className="text-2xl font-black uppercase tracking-tighter italic text-slate-950">ZO.FLOW</div>
          </Link>
       </nav>
 
@@ -213,7 +213,7 @@ export default function LoginPage() {
       {/* PLATFORM VERSION */}
       <div className="fixed bottom-12 flex items-center gap-12 opacity-10 text-[9px] font-black text-slate-900 uppercase tracking-[1.5em] pointer-events-none">
          <Cpu size={12} />
-         <span>Build. 1.4.2. STABLE</span>
+          <span className="opacity-100">Build. 1.4.2. STABLE</span>
       </div>
     </div>
   )

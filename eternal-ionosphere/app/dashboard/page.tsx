@@ -32,20 +32,20 @@ export default function DashboardPage() {
   if (!mounted) return null
 
   return (
-    <div className="min-h-screen bg-[#FCFAF6] p-8 lg:p-16 font-sans">
+    <div className="min-h-screen bg-[var(--bg-0)] p-8 lg:p-16 font-sans">
       
       {/* NYC HUB HEADER */}
       <header className="flex flex-col md:flex-row md:items-start justify-between gap-10 mb-20">
         <div>
            <div className="flex items-center gap-4 mb-6">
-              <div className={`w-3 h-3 rounded-full ${aiStatus === 'idle' ? 'bg-[#20808D]' : 'bg-rose-500 animate-pulse'} `} />
+              <div className={`w-3 h-3 rounded-full ${aiStatus === 'idle' ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'} `} />
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">
                 {aiStatus === 'idle' ? 'NYC Hub Synchronized' : 'Neural Processing...'}
               </span>
            </div>
-           <h1 className="text-5xl md:text-8xl font-black text-[#091717] tracking-tighter uppercase italic leading-none">LES Control</h1>
+           <h1 className="text-5xl md:text-8xl font-black text-[var(--text-primary)] tracking-tighter uppercase italic leading-none">LES Control</h1>
            <div className="flex items-center gap-3 mt-6 text-slate-400">
-              <MapPin size={14} className="text-[#20808D]" />
+              <MapPin size={14} className="text-emerald-500" />
               <span className="text-[10px] font-black uppercase tracking-widest">Lower East Side, Manhattan</span>
               <div className="w-1 h-1 rounded-full bg-slate-200 mx-2" />
               <Clock size={14} />
@@ -78,7 +78,7 @@ export default function DashboardPage() {
            { label: 'Shop Valuation', value: `$${((inventoryValue || 0)/1000).toFixed(1)}k`, icon: DollarSign, color: 'text-emerald-600', trend: 'Healthy' },
            { label: 'Active Protocols', value: pendingRecs.length, icon: Zap, color: 'text-amber-500', trend: 'Priority' },
            { label: 'NYC Sales', value: sales.length, icon: TrendingUp, color: 'text-blue-500', trend: 'Live' },
-           { label: 'Carrier Status', value: '4 Active', icon: Globe, color: 'text-[#20808D]', trend: 'In-Transit' },
+           { label: 'Carrier Status', value: '4 Active', icon: Globe, color: 'text-emerald-500', trend: 'In-Transit' },
          ].map((stat, i) => (
            <motion.div 
              key={stat.label}
@@ -128,7 +128,7 @@ export default function DashboardPage() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9, x: -20 }}
-                        className="bg-white border border-slate-100 rounded-[3rem] p-10 flex flex-col justify-between hover:shadow-2xl transition-all border-l-4 border-l-[#20808D]"
+                        className="bg-[var(--bg-2)] border border-[var(--border)] rounded-[3rem] p-10 flex flex-col justify-between hover:shadow-2xl transition-all border-l-4 border-l-emerald-500"
                       >
                          <div>
                             <div className="flex justify-between items-start mb-8">
@@ -144,7 +144,7 @@ export default function DashboardPage() {
                          </div>
                          <button 
                            onClick={() => executeRecommendation(rec.id)}
-                           className="w-full h-16 bg-slate-950 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-[#20808D] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                           className="w-full h-16 bg-slate-950 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-emerald-600 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
                          >
                            Resolve Action <ChevronRight size={14} />
                          </button>
@@ -158,7 +158,7 @@ export default function DashboardPage() {
          {/* NYC OPERATIONAL LOG */}
          <div className="space-y-10">
             <h2 className="text-2xl font-black text-[#091717] tracking-tight uppercase italic">Operational Pulse</h2>
-            <div className="bg-white border border-slate-100 rounded-[3rem] p-10 shadow-sm min-h-[500px]">
+            <div className="bg-[var(--bg-2)] border border-[var(--border)] rounded-[3rem] p-10 shadow-sm min-h-[500px]">
                <div className="space-y-10">
                   <AnimatePresence mode="popLayout">
                     {sales.slice(0, 4).map((sale, i) => (
@@ -180,7 +180,7 @@ export default function DashboardPage() {
                   
                   {recommendations.slice(0, 2).map((rec, i) => (
                     <div key={rec.id} className="flex gap-6 items-start opacity-60">
-                       <div className="w-1.5 h-1.5 rounded-full bg-[#20808D] mt-2 shrink-0" />
+                       <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0" />
                        <div>
                           <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Intelligence Protocol</div>
                           <div className="text-sm font-bold text-slate-950">{rec.title}</div>

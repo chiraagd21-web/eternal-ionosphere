@@ -4,12 +4,11 @@ import { Providers } from './providers'
 import { AppShell } from '@/components/AppShell'
 
 export const metadata: Metadata = {
-  title: 'zo.flow | Intelligent Supply Chain Intelligence',
-  description: 'AI-powered procurement platform that finds global suppliers, scores them automatically, and generates RFQs in seconds.',
-  keywords: 'procurement, sourcing, supply chain, AI, RFQ, suppliers',
+  title: 'Zo.Flow | Operational Authority OS',
+  description: 'The single operating system to unify sourcing arbitration, global freight telemetry, and spatial 3D inventory modeling.',
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
   openGraph: {
-    title: 'zo.flow',
+    title: 'Zo.Flow',
     description: 'Intelligent supply chain sourcing powered by AI',
     type: 'website',
   },

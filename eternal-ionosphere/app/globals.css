@@ -5,55 +5,31 @@
 @tailwind utilities;
 
 :root {
-  /* Bloom Theme (Light - MINIMALIST) */
-  --bloom-bg: #ffffff;
-  --bloom-sidebar: #f8fafc;
+  /* Zo.Flow Original Theme (High-Contrast Light) */
+  --bloom-bg: #f8f9fa;
+  --bloom-sidebar: #ffffff;
   --bloom-card: #ffffff;
   --bloom-text-primary: #000000;
-  --bloom-text-secondary: #0f172a;
-  --bloom-text-muted: #475569;
-  --bloom-border: rgba(0, 0, 0, 0.1);
-  --bloom-accent: #4338ca;
+  --bloom-text-secondary: #1a1a1a;
+  --bloom-text-muted: #666666;
+  --bloom-border: rgba(0, 0, 0, 0.05);
+  --bloom-accent: #10b981; /* Emerald */
 
-  /* Heritage Cream Theme (Medium) */
-  --cream-bg: #faf7f2;
-  --cream-sidebar: #f2ede4;
-  --cream-card: #ffffff;
-  --cream-text-primary: #1c1917;
-  --cream-text-secondary: #292524;
-  --cream-text-muted: #57534e;
-  --cream-border: rgba(0, 0, 0, 0.08);
-  --cream-accent: #9a3412;
-
-  /* Synk Obsidian Theme (Dark) */
-  --synk-bg: #020617;
-  --synk-sidebar: #010410;
-  --synk-card: #0f172a;
-  --synk-text-primary: #ffffff;
-  --synk-text-secondary: #f1f5f9;
-  --synk-text-muted: #94a3b8;
-  --synk-border: rgba(255, 255, 255, 0.1);
-  --synk-accent: #a5b4fc;
-  --synk-bg-3: #1c1c27;
-  --synk-bg-4: #252533;
-  --synk-glass-bg: rgba(16, 16, 26, 0.7);
-  --synk-glass-blur: 32px;
-
-  /* Default Variables (mapped to Synk by default) */
-  --bg-0: var(--synk-bg);
-  --bg-1: var(--synk-sidebar);
-  --bg-2: var(--synk-card);
-  --bg-3: var(--synk-bg-3);
-  --bg-4: var(--synk-bg-4);
-  --brand: var(--synk-accent);
-  --brand-light: #a5b4fc;
-  --brand-dark: #6366f1;
-  --text-primary: var(--synk-text-primary);
-  --text-secondary: var(--synk-text-secondary);
-  --text-muted: var(--synk-text-muted);
-  --border: var(--synk-border);
-  --glass-bg: var(--synk-glass-bg);
-  --glass-blur: var(--synk-glass-blur);
+  /* Default Variables (Mapped to Bloom for the requested restoration) */
+  --bg-0: var(--bloom-bg);
+  --bg-1: var(--bloom-sidebar);
+  --bg-2: var(--bloom-card);
+  --bg-3: #f1f5f9;
+  --bg-4: #e2e8f0;
+  --brand: var(--bloom-accent);
+  --brand-light: #34d399;
+  --brand-dark: #059669;
+  --text-primary: var(--bloom-text-primary);
+  --text-secondary: var(--bloom-text-secondary);
+  --text-muted: var(--bloom-text-muted);
+  --border: var(--bloom-border);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-blur: 20px;
 }
 
 .theme-bloom {
@@ -63,48 +39,34 @@
   --bg-3: #f1f5f9;
   --bg-4: #e2e8f0;
   --brand: var(--bloom-accent);
-  --brand-light: #818cf8;
-  --brand-dark: #4f46e5;
   --text-primary: var(--bloom-text-primary);
   --text-secondary: var(--bloom-text-secondary);
-  --text-muted: #64748b;
+  --text-muted: var(--bloom-text-muted);
   --border: var(--bloom-border);
-  --glass-bg: rgba(255, 255, 255, 0.4);
-  --glass-blur: 24px;
 }
 
+/* Heritage Cream Theme (Medium) - Keeping but updated */
 .theme-cream {
-  --bg-0: var(--cream-bg);
-  --bg-1: var(--cream-sidebar);
-  --bg-2: var(--cream-card);
-  --bg-3: #e8e2d7;
-  --bg-4: #dad2c1;
-  --brand: var(--cream-accent);
-  --brand-light: #ea580c;
-  --brand-dark: #9a3412;
-  --text-primary: var(--cream-text-primary);
-  --text-secondary: var(--cream-text-secondary);
-  --text-muted: #8c7e6d;
-  --border: var(--cream-border);
-  --glass-bg: rgba(242, 237, 228, 0.5);
-  --glass-blur: 24px;
+  --bg-0: #faf7f2;
+  --bg-1: #f2ede4;
+  --bg-2: #ffffff;
+  --brand: #9a3412;
+  --text-primary: #1c1917;
+  --text-secondary: #292524;
+  --text-muted: #57534e;
+  --border: rgba(0, 0, 0, 0.08);
 }
 
+/* Synk Obsidian Theme (Dark) - Keeping for toggle ability */
 .theme-synk {
-  --bg-0: var(--synk-bg);
-  --bg-1: var(--synk-sidebar);
-  --bg-2: var(--synk-card);
-  --bg-3: var(--synk-bg-3);
-  --bg-4: var(--synk-bg-4);
-  --brand: var(--synk-accent);
-  --brand-light: #a5b4fc;
-  --brand-dark: #6366f1;
-  --text-primary: var(--synk-text-primary);
-  --text-secondary: var(--synk-text-secondary);
-  --text-muted: var(--synk-text-muted);
-  --border: var(--synk-border);
-  --glass-bg: var(--synk-glass-bg);
-  --glass-blur: var(--synk-glass-blur);
+  --bg-0: #020617;
+  --bg-1: #010410;
+  --bg-2: #0f172a;
+  --brand: #a5b4fc;
+  --text-primary: #ffffff;
+  --text-secondary: #f1f5f9;
+  --text-muted: #94a3b8;
+  --border: rgba(255, 255, 255, 0.1);
 }
 
 * {

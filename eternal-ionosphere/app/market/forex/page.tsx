@@ -82,7 +82,7 @@ export default function ForexPage() {
         </Link>
         <div className="flex-1">
           <div className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] mb-1">Live Data from Frankfurter API</div>
-          <h1 className="text-3xl font-black text-[var(--text-primary)] tracking-tighter">Forex Terminal</h1>
+          <h1 className="text-3xl font-black text-[var(--text-primary)] tracking-tighter uppercase italic">Forex Terminal</h1>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
           <Radio size={12} className="text-emerald-500 animate-pulse" />
@@ -139,7 +139,7 @@ export default function ForexPage() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <div className="text-[10px] font-black text-[var(--text-secondary)] opacity-30 uppercase tracking-widest mb-1">USD / {selectedCurrency}</div>
-                <div className="text-5xl font-black text-[var(--text-primary)] tabular-nums tracking-tighter">
+                <div className="text-5xl font-black text-[var(--text-primary)] tabular-nums tracking-tighter italic uppercase">
                   {selectedRate.toLocaleString(undefined, {maximumFractionDigits: 4})}
                 </div>
               </div>
@@ -175,7 +175,7 @@ export default function ForexPage() {
 
           {/* Currency Converter */}
           <div className="bg-[var(--bg-1)] border border-[var(--border)] rounded-[2rem] p-8">
-            <h3 className="text-lg font-black text-[var(--text-primary)] tracking-tight mb-6">Live Converter</h3>
+            <h3 className="text-lg font-black text-[var(--text-primary)] tracking-tight mb-6 uppercase italic">Live Converter</h3>
             <div className="flex flex-col md:flex-row items-center gap-6">
               <div className="flex-1 w-full">
                 <label className="text-[10px] font-black text-[var(--text-secondary)] opacity-30 uppercase tracking-widest mb-2 block">Amount (USD)</label>
