@@ -60,7 +60,7 @@ const Logo = () => (
       <circle cx="6" cy="6" r="6" fill="currentColor"/>
       <rect x="18" y="2" width="14" height="8" fill="currentColor"/>
     </svg>
-    <span className="text-lg font-black tracking-tighter italic text-black">Zo.Flow</span>
+    <span className="text-lg font-black tracking-tighter italic text-black">ZO.FLOW</span>
   </div>
 )
 
