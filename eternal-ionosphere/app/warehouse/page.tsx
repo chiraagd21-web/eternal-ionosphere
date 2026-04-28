@@ -215,22 +215,22 @@ export default function WarehousePage() {
                 </div>
 
                  <div className="flex gap-4">
-                   <button 
-                     onClick={() => {
-                        const qty = prompt('Enter quantity to receive:', '0')
-                        if (qty) {
-                          addInventoryCount(selectedItem.sku, parseInt(qty))
-                          showToast(`Received ${qty} units for ${selectedItem.name}`, 'success')
-                        }
-                        setSelectedItem(null)
-                     }}
-                     className="flex-1 bg-indigo-600 text-[var(--bg-0)] font-bold py-5 rounded-[1.5rem] shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 transition-all transform hover:-translate-y-1"
-                   >
+                    <button 
+                      onClick={() => {
+                         const qty = prompt('Enter quantity to receive:', '0')
+                         if (qty) {
+                           addInventoryCount(selectedItem.sku, parseInt(qty))
+                           showToast(`Received ${qty} units for ${selectedItem.name}`, 'success')
+                         }
+                         setSelectedItem(null)
+                      }}
+                      className="flex-1 bg-slate-950 text-[var(--bg-0)] font-black py-5 rounded-[1.5rem] shadow-xl shadow-emerald-600/10 hover:bg-emerald-600 transition-all transform hover:-translate-y-1 uppercase tracking-widest text-[11px] italic"
+                    >
                      Receive Stock
                    </button>
-                   <button className="flex-1 bg-[var(--text-primary)] text-[var(--bg-0)] font-bold py-5 rounded-[1.5rem] hover:opacity-90 transition-all transform hover:-translate-y-1">
-                     Full Audit
-                   </button>
+                    <button className="flex-1 bg-[var(--bg-1)] border border-[var(--border)] text-[var(--text-primary)] font-black py-5 rounded-[1.5rem] hover:bg-[var(--bg-2)] transition-all transform hover:-translate-y-1 uppercase tracking-widest text-[11px] italic">
+                      Full Audit
+                    </button>
                 </div>
              </motion.div>
           </div>

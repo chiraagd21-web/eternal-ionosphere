@@ -87,8 +87,8 @@ export default function ContractsDashboard() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
         <div>
-          <h1 className="text-5xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-2 leading-none">
-            Contract <span className="text-indigo-400">Vault</span>
+          <h1 className="text-5xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-2 leading-none italic">
+            Contract <span className="text-emerald-500">Vault</span>
           </h1>
           <p className="text-[var(--text-secondary)] opacity-40 max-w-xl text-sm font-medium">
             Immutable AI-monitored repository for global supplier agreements. 
@@ -105,7 +105,7 @@ export default function ContractsDashboard() {
           </button>
           <button 
             onClick={() => {}}
-            className="flex items-center gap-4 bg-indigo-600 hover:bg-indigo-500 text-[var(--bg-0)] px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-indigo-600/20 active:scale-95 transition-all"
+            className="flex items-center gap-4 bg-slate-950 hover:bg-emerald-600 text-[var(--bg-0)] px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-emerald-600/10 active:scale-95 transition-all"
           >
             <Plus size={18} /> New Agreement
           </button>
@@ -117,13 +117,13 @@ export default function ContractsDashboard() {
         <div className="p-8 rounded-[40px] bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/20 relative overflow-hidden group hover:border-indigo-500/40 transition-all cursor-pointer" onClick={() => {}}>
           <ShieldCheck className="absolute -right-4 -bottom-4 w-40 h-40 text-indigo-500/5 rotate-12 group-hover:rotate-0 transition-transform duration-1000" />
           <div className="relative z-10">
-            <div className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-6">Compliance Rate</div>
+            <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-6">Compliance Rate</div>
             <div className="flex items-end gap-4 mb-6">
               <div className="text-5xl font-black text-[var(--text-primary)] tracking-tighter tabular-nums leading-none">96.8%</div>
               <div className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[9px] font-black border border-emerald-500/20 mb-1">+1.2%</div>
             </div>
             <div className="h-1.5 w-full bg-[var(--bg-1)] rounded-full overflow-hidden shadow-inner">
-              <motion.div initial={{ width: 0 }} animate={{ width: '96.8%' }} transition={{ duration: 1 }} className="h-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
+              <motion.div initial={{ width: 0 }} animate={{ width: '96.8%' }} transition={{ duration: 1 }} className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
             </div>
           </div>
         </div>
@@ -140,7 +140,7 @@ export default function ContractsDashboard() {
                   S{i}
                 </div>
               ))}
-              <div className="w-10 h-10 rounded-2xl border-2 border-[var(--bg-card)] bg-indigo-600 flex items-center justify-center text-[10px] font-black text-[var(--bg-0)] shadow-lg">
+              <div className="w-10 h-10 rounded-2xl border-2 border-[var(--bg-card)] bg-emerald-600 flex items-center justify-center text-[10px] font-black text-[var(--bg-0)] shadow-lg">
                 +2
               </div>
             </div>
@@ -169,7 +169,7 @@ export default function ContractsDashboard() {
                 key={t}
                 onClick={() => handleApplyFilter(t)}
                 className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                  filter === t ? 'bg-indigo-600 text-[var(--bg-0)] shadow-lg shadow-indigo-500/20' : 'text-[var(--text-secondary)] opacity-40 hover:text-[var(--text-primary)]'
+                  filter === t ? 'bg-slate-950 text-[var(--bg-0)] shadow-lg shadow-emerald-500/20' : 'text-[var(--text-secondary)] opacity-40 hover:text-emerald-500'
                 }`}
               >
                 {t}
@@ -215,11 +215,11 @@ export default function ContractsDashboard() {
                 >
                   <td className="py-6 px-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-[var(--bg-0)] border border-[var(--border)] flex items-center justify-center text-indigo-400 group-hover:bg-indigo-600 group-hover:text-[var(--bg-0)] transition-all shadow-inner">
+                      <div className="w-12 h-12 rounded-2xl bg-[var(--bg-0)] border border-[var(--border)] flex items-center justify-center text-emerald-500 group-hover:bg-emerald-600 group-hover:text-[var(--bg-0)] transition-all shadow-inner">
                         <FileText size={20} />
                       </div>
                       <div>
-                        <div className="text-xs font-black text-[var(--text-primary)] uppercase tracking-tight group-hover:text-indigo-400 transition-colors leading-none mb-1.5">{c.title}</div>
+                        <div className="text-xs font-black text-[var(--text-primary)] uppercase tracking-tight group-hover:text-emerald-500 transition-colors leading-none mb-1.5">{c.title}</div>
                         <div className="text-[10px] font-mono text-[var(--text-secondary)] opacity-40 uppercase tracking-tighter">{c.id}</div>
                       </div>
                     </div>
@@ -251,17 +251,17 @@ export default function ContractsDashboard() {
                     <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
                         onClick={(e) => { e.stopPropagation(); }}
-                        className="p-3 bg-[var(--bg-2)] rounded-xl border border-[var(--border)] text-[var(--text-secondary)] hover:text-indigo-400 hover:bg-indigo-600/10 transition-all"
+                        className="p-3 bg-[var(--bg-2)] rounded-xl border border-[var(--border)] text-[var(--text-secondary)] hover:text-emerald-500 hover:bg-emerald-600/10 transition-all"
                       >
                         <Lock size={16} />
                       </button>
                       <button 
                         onClick={(e) => { e.stopPropagation(); }}
-                        className="p-3 bg-[var(--bg-2)] rounded-xl border border-[var(--border)] text-[var(--text-secondary)] hover:text-indigo-400 transition-all shadow-lg"
+                        className="p-3 bg-[var(--bg-2)] rounded-xl border border-[var(--border)] text-[var(--text-secondary)] hover:text-emerald-500 transition-all shadow-lg"
                       >
                          <Eye size={16} />
                       </button>
-                      <button className="p-3 bg-[var(--bg-2)] rounded-xl border border-[var(--border)] text-[var(--text-secondary)] hover:text-indigo-400 transition-all">
+                      <button className="p-3 bg-[var(--bg-2)] rounded-xl border border-[var(--border)] text-[var(--text-secondary)] hover:text-emerald-500 transition-all">
                         <MoreHorizontal size={16} />
                       </button>
                     </div>

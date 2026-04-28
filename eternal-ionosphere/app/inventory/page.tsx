@@ -144,7 +144,7 @@ export default function InventoryLedgerPage() {
                {_isHydrated ? 'Cloud Synchronized' : 'Establishing Sync...'}
             </div>
          </div>
-         <button onClick={() => setShowAddModal(true)} className="bg-[var(--brand)] p-6 rounded-[2rem] shadow-2xl flex items-center justify-center gap-4 hover:scale-[1.02] active:scale-95 transition-all text-[var(--bg-0)] group overflow-hidden relative h-40">
+         <button onClick={() => setShowAddModal(true)} className="bg-slate-950 p-6 rounded-[2rem] shadow-2xl flex items-center justify-center gap-4 hover:bg-emerald-600 hover:scale-[1.02] active:scale-95 transition-all text-[var(--bg-0)] group overflow-hidden relative h-40">
             <div className="absolute top-0 left-0 w-full h-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
             <Plus size={32} />
             <div className="text-left font-black tracking-tight leading-none text-xl uppercase">Onboard<br/><span className="text-[var(--bg-0)] opacity-40">New SKU</span></div>
@@ -155,7 +155,7 @@ export default function InventoryLedgerPage() {
       <div className="flex flex-col lg:flex-row items-center gap-6 mb-10">
         <div className="flex items-center gap-2">
            <div className="w-14 h-14 bg-[var(--text-primary)] text-[var(--bg-0)] rounded-2xl flex items-center justify-center shadow-xl rotate-3 hover:rotate-0 transition-transform"><LayoutGrid size={28} /></div>
-           <h1 className="text-4xl font-black text-[var(--text-primary)] tracking-tighter uppercase leading-none">Automated Ledger</h1>
+           <h1 className="text-4xl font-black text-[var(--text-primary)] tracking-tighter uppercase leading-none italic">Automated Ledger</h1>
         </div>
         
         <div className="flex-1 max-w-xl self-stretch relative group">
@@ -172,7 +172,7 @@ export default function InventoryLedgerPage() {
         <div className="flex items-center gap-3">
            <div className="bg-[var(--bg-1)] border border-[var(--border)] p-2 rounded-2xl flex gap-1 shadow-sm">
               {(['balance', 'sales'] as const).map(mode => (
-                <button key={mode} onClick={() => setEntryMode(mode)} className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${entryMode === mode ? 'bg-indigo-600 text-[var(--bg-0)] shadow-lg' : 'text-[var(--text-secondary)] opacity-40 hover:opacity-100 hover:bg-[var(--bg-2)]'}`}>{mode}</button>
+                <button key={mode} onClick={() => setEntryMode(mode)} className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${entryMode === mode ? 'bg-emerald-500 text-[var(--bg-0)] shadow-lg' : 'text-[var(--text-secondary)] opacity-40 hover:opacity-100 hover:bg-[var(--bg-2)]'}`}>{mode}</button>
               ))}
            </div>
            <div className="bg-[var(--bg-1)] border border-[var(--border)] p-2 rounded-2xl flex gap-1 shadow-sm">
@@ -217,10 +217,10 @@ export default function InventoryLedgerPage() {
                        {idx === 0 && (
                         <td rowSpan={items.length} className="sticky left-0 bg-[var(--bg-2)] z-20 border-r border-[var(--border)] px-8 py-8 font-black align-top group-hover/row:bg-[var(--bg-1)] transition-colors">
                           <div className="pt-2">
-                             <div className="text-indigo-600 text-lg tracking-tight leading-none uppercase">{category}</div>
+                             <div className="text-emerald-600 text-lg tracking-tight leading-none uppercase italic">{category}</div>
                              <div className="mt-4 flex flex-col gap-2">
                                 <div className="h-1.5 w-full bg-[var(--bg-0)] rounded-full overflow-hidden">
-                                   <div className="h-full bg-indigo-500" style={{ width: `${Math.min(100, (items.length / 10) * 100)}%` }} />
+                                   <div className="h-full bg-emerald-500" style={{ width: `${Math.min(100, (items.length / 10) * 100)}%` }} />
                                 </div>
                                 <span className="text-[9px] opacity-40 uppercase tracking-widest">{items.length} SKUs in Sector</span>
                              </div>
@@ -235,7 +235,7 @@ export default function InventoryLedgerPage() {
                                  <span className="text-[var(--text-primary)] font-black">{item.id.toUpperCase()}</span>
                                  <button 
                                    onClick={() => setShowPutAway(item.id)}
-                                   className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-[var(--bg-0)] transition-all transform active:scale-90"
+                                   className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-[var(--bg-0)] transition-all transform active:scale-90"
                                    title="Put-Away Command"
                                  >
                                     <Boxes size={14} />
@@ -286,7 +286,7 @@ export default function InventoryLedgerPage() {
                               className={`w-full h-full bg-transparent border-none text-center py-10 outline-none transition-all ${
                                 isSalesEntry 
                                   ? 'text-rose-500 font-extrabold text-lg' 
-                                  : (isManual ? 'text-[var(--text-primary)] font-black text-lg' : 'text-indigo-600/40 font-black italic-none text-lg')
+                                  : (isManual ? 'text-[var(--text-primary)] font-black text-lg' : 'text-emerald-600/40 font-black italic-none text-lg')
                                } ${isStockAlert && !isSalesEntry ? 'text-rose-600' : ''}`}
                             />
                             {isStockAlert && !isSalesEntry && (
@@ -316,7 +316,7 @@ export default function InventoryLedgerPage() {
             className="fixed bottom-10 right-10 z-[100] w-72 bg-[var(--bg-card)] backdrop-blur-3xl border border-[var(--border)] rounded-[2.5rem] shadow-2xl p-8 pointer-events-none"
           >
             <div className="flex items-center gap-3 mb-6">
-               <div className="w-12 h-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center text-indigo-500">
+               <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-500">
                   <MousePointer2 size={24} className="animate-pulse" />
                </div>
                <div>
@@ -484,7 +484,7 @@ export default function InventoryLedgerPage() {
                 </div>
               </div>
 
-              <button onClick={handlePutAwaySubmit} className="w-full h-20 bg-indigo-600 text-[var(--bg-0)] rounded-[2.5rem] font-black text-xl shadow-2xl hover:bg-indigo-500 transition-all uppercase tracking-tight">Secure Placement</button>
+              <button onClick={handlePutAwaySubmit} className="w-full h-20 bg-slate-950 text-[var(--bg-0)] rounded-[2.5rem] font-black text-xl shadow-2xl hover:bg-emerald-600 transition-all uppercase tracking-tight italic">Secure Placement</button>
             </motion.div>
           </div>
         )}
@@ -517,7 +517,7 @@ export default function InventoryLedgerPage() {
                       <input type="number" value={newProduct.initialQty} onChange={e => setNewProduct({...newProduct, initialQty: parseInt(e.target.value) || 0})} className="w-full h-16 bg-[var(--bg-0)] border border-[var(--border)] px-8 rounded-3xl text-sm font-black text-[var(--text-primary)] outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all" />
                    </div>
                 </div>
-                <button onClick={handleCreateProduct} className="w-full h-20 bg-indigo-600 text-[var(--bg-0)] rounded-[2.5rem] font-black text-xl shadow-2xl hover:bg-indigo-500 hover:scale-[1.01] active:scale-95 transition-all uppercase tracking-tight">Onboard into Grid</button>
+                <button onClick={handleCreateProduct} className="w-full h-20 bg-slate-950 text-[var(--bg-0)] rounded-[2.5rem] font-black text-xl shadow-2xl hover:bg-emerald-600 hover:scale-[1.01] active:scale-95 transition-all uppercase tracking-tight italic">Onboard into Grid</button>
              </motion.div>
           </div>
         )}

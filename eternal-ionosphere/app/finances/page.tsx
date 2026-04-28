@@ -222,8 +222,8 @@ export default function FinancesPage() {
       {/* Header Hub */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
         <div>
-          <h1 className="text-5xl font-black uppercase tracking-tighter mb-2 leading-none text-[var(--text-primary)]">
-            Finance <span className="text-indigo-400">Recon</span>
+          <h1 className="text-5xl font-black uppercase tracking-tighter mb-2 leading-none text-[var(--text-primary)] italic">
+            Finance <span className="text-emerald-500">Recon</span>
           </h1>
           <p className="text-[var(--text-secondary)] opacity-40 max-w-xl text-sm font-medium">
             Smart matching logic for ASN and Vendor Invoices. 
@@ -241,7 +241,7 @@ export default function FinancesPage() {
                 setAsnData([]); setInvoiceData([]); setPoData([]); setShowResults(false);
                 showToast('Batch registry cleared', 'info')
             }}
-            className="flex items-center gap-3 bg-indigo-600 hover:bg-indigo-500 text-[var(--bg-0)] px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-indigo-600/20 active:scale-95 transition-all"
+            className="flex items-center gap-3 bg-slate-950 hover:bg-emerald-600 text-[var(--bg-0)] px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-emerald-600/10 active:scale-95 transition-all"
           >
             <Plus size={16} /> New Batch
           </button>
@@ -271,7 +271,7 @@ export default function FinancesPage() {
           {/* ASN Upload */}
           <div className="group relative">
             <div className={`p-10 rounded-[40px] border-2 border-dashed transition-all duration-500 h-full flex flex-col items-center justify-center text-center ${asnData.length > 0 ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-[var(--border)] bg-[var(--bg-1)] hover:border-indigo-500/50 hover:bg-[var(--bg-2)]'}`}>
-                <div className={`w-20 h-20 rounded-[32px] flex items-center justify-center mb-6 transition-all shadow-2xl ${asnData.length > 0 ? 'bg-emerald-500 text-[var(--bg-0)]' : 'bg-[var(--bg-0)] border border-[var(--border)] text-[var(--text-secondary)] opacity-40 group-hover:text-indigo-400'}`}>
+                <div className={`w-20 h-20 rounded-[32px] flex items-center justify-center mb-6 transition-all shadow-2xl ${asnData.length > 0 ? 'bg-emerald-500 text-[var(--bg-0)]' : 'bg-[var(--bg-0)] border border-[var(--border)] text-[var(--text-secondary)] opacity-40 group-hover:text-emerald-400'}`}>
                   {asnData.length > 0 ? <CheckCircle2 size={32} /> : <FileSpreadsheet size={32} />}
                 </div>
                 <h3 className="text-xl font-black uppercase tracking-tight mb-2 text-[var(--text-primary)]">Shipping Notice</h3>
@@ -295,7 +295,7 @@ export default function FinancesPage() {
           {/* Invoice Upload */}
           <div className="group relative">
             <div className={`p-10 rounded-[40px] border-2 border-dashed transition-all duration-500 h-full flex flex-col items-center justify-center text-center ${invoiceData.length > 0 ? 'border-indigo-500/50 bg-indigo-500/5' : 'border-[var(--border)] bg-[var(--bg-1)] hover:border-indigo-500/50 hover:bg-[var(--bg-2)]'}`}>
-                <div className={`w-20 h-20 rounded-[32px] flex items-center justify-center mb-6 transition-all shadow-2xl ${invoiceData.length > 0 ? 'bg-indigo-600 text-[var(--bg-0)]' : 'bg-[var(--bg-0)] border border-[var(--border)] text-[var(--text-secondary)] opacity-40 group-hover:text-indigo-400'}`}>
+                <div className={`w-20 h-20 rounded-[32px] flex items-center justify-center mb-6 transition-all shadow-2xl ${invoiceData.length > 0 ? 'bg-emerald-600 text-[var(--bg-0)]' : 'bg-[var(--bg-0)] border border-[var(--border)] text-[var(--text-secondary)] opacity-40 group-hover:text-emerald-400'}`}>
                   {invoiceData.length > 0 ? <CheckCircle2 size={32} /> : <DollarSign size={32} />}
                 </div>
                 <h3 className="text-xl font-black uppercase tracking-tight mb-2 text-[var(--text-primary)]">Vendor Invoice</h3>
@@ -309,7 +309,7 @@ export default function FinancesPage() {
                     className="absolute inset-0 opacity-0 cursor-pointer"
                     accept=".xlsx, .xls"
                   />
-                  <button className={`px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl ${invoiceData.length > 0 ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30' : 'bg-[var(--bg-1)] text-[var(--text-primary)] hover:scale-105'}`}>
+                  <button className={`px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl ${invoiceData.length > 0 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-[var(--bg-1)] text-[var(--text-primary)] hover:scale-105'}`}>
                     {invoiceData.length > 0 ? 'Record Ready' : 'Select Payload'}
                   </button>
                 </div>
@@ -321,7 +321,7 @@ export default function FinancesPage() {
             <button
               onClick={runMatching}
               disabled={asnData.length === 0 || invoiceData.length === 0 || poData.length === 0 || isProcessing}
-              className={`group flex items-center gap-4 px-12 py-5 rounded-3xl font-black uppercase tracking-[0.2em] text-xs transition-all shadow-2xl ${asnData.length > 0 && invoiceData.length > 0 && poData.length > 0 && !isProcessing ? 'bg-indigo-600 text-[var(--bg-0)] hover:scale-[1.05] shadow-indigo-600/30' : 'bg-[var(--bg-1)] text-[var(--text-secondary)] opacity-20 cursor-not-allowed border border-[var(--border)]'}`}
+              className={`group flex items-center gap-4 px-12 py-5 rounded-3xl font-black uppercase tracking-[0.2em] text-xs transition-all shadow-2xl ${asnData.length > 0 && invoiceData.length > 0 && poData.length > 0 && !isProcessing ? 'bg-slate-950 text-[var(--bg-0)] hover:bg-emerald-600 hover:scale-[1.05] shadow-emerald-600/10' : 'bg-[var(--bg-1)] text-[var(--text-secondary)] opacity-20 cursor-not-allowed border border-[var(--border)]'}`}
             >
               {isProcessing ? (
                 <><RefreshCw className="animate-spin" size={20} /> ALIGNING PROTOCOLS...</>
@@ -369,8 +369,8 @@ export default function FinancesPage() {
               <div className="flex items-center gap-8">
                 <h2 className="text-xl font-black uppercase tracking-tighter text-[var(--text-primary)]">Results</h2>
                 <div className="flex bg-[var(--bg-0)]/50 p-1.5 rounded-2xl border border-[var(--border)]">
-                  <button className="px-5 py-2 rounded-xl bg-indigo-600 text-[10px] font-black uppercase tracking-widest shadow-lg text-[var(--bg-0)]">Show All</button>
-                  <button className="px-5 py-2 rounded-xl text-[10px] font-black text-[var(--text-secondary)] opacity-40 uppercase tracking-widest hover:text-[var(--text-primary)] transition-all">Anomalies</button>
+                  <button className="px-5 py-2 rounded-xl bg-slate-950 text-[10px] font-black uppercase tracking-widest shadow-lg text-[var(--bg-0)]">Show All</button>
+                  <button className="px-5 py-2 rounded-xl text-[10px] font-black text-[var(--text-secondary)] opacity-40 uppercase tracking-widest hover:text-emerald-500 transition-all">Anomalies</button>
                 </div>
               </div>
               <div className="flex items-center gap-4 w-full md:w-auto">
@@ -384,7 +384,7 @@ export default function FinancesPage() {
                 </div>
                 <button 
                   onClick={exportCSV}
-                  className="p-4 bg-indigo-600/10 text-indigo-400 border border-indigo-500/20 rounded-2xl hover:bg-indigo-600 hover:text-[var(--bg-0)] transition-all shadow-xl shadow-indigo-600/10"
+                  className="p-4 bg-emerald-600/10 text-emerald-500 border border-emerald-500/20 rounded-2xl hover:bg-emerald-600 hover:text-[var(--bg-0)] transition-all shadow-xl shadow-emerald-600/10"
                 >
                   <FileDown size={20} />
                 </button>
@@ -415,7 +415,7 @@ export default function FinancesPage() {
                   {results.map((res, i) => (
                     <tr key={i} className="hover:bg-[var(--bg-2)] transition-colors group cursor-crosshair">
                       <td className="px-8 py-6">
-                        <span className="font-black text-sm text-indigo-400 uppercase tracking-tighter">#{res.po_number || 'NULL'}</span>
+                        <span className="font-black text-sm text-emerald-500 uppercase tracking-tighter">#{res.po_number || 'NULL'}</span>
                       </td>
                       <td className="px-8 py-6 text-xs font-mono font-bold text-[var(--text-secondary)] opacity-40 uppercase tracking-tighter">{res.item_id || 'UNKNOWN'}</td>
                       <td className="px-8 py-6 text-sm font-black tabular-nums text-[var(--text-primary)]">{res.asn_qty}</td>
@@ -441,7 +441,7 @@ export default function FinancesPage() {
                       <td className="px-8 py-6 text-right">
                          <button 
                             onClick={() => showToast(`Opening protocol audit for ${res.po_number}`, 'info')}
-                            className="bg-[var(--bg-1)] p-3 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-indigo-600 hover:text-[var(--bg-0)]"
+                             className="bg-[var(--bg-1)] p-3 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-emerald-600 hover:text-[var(--bg-0)]"
                          >
                             <ArrowRight size={16} />
                          </button>

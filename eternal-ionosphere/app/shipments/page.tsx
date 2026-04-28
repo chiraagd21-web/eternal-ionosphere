@@ -509,8 +509,8 @@ export default function ShipmentsPage() {
           </div>
           <div>
             <div className="text-[10px] font-bold tracking-[0.3em] text-[var(--text-muted)] mb-2 uppercase">Core Logistics Engine</div>
-            <h1 className="text-5xl font-black tracking-tighter text-[var(--text-primary)] uppercase">
-              Shipment <span className="text-[var(--brand)]">Hub</span>
+            <h1 className="text-5xl font-black tracking-tighter text-[var(--text-primary)] uppercase italic">
+              Shipment <span className="text-emerald-500">Hub</span>
             </h1>
             <div className="flex flex-wrap items-center gap-6 mt-4 text-[10px] font-bold tracking-widest text-[var(--text-muted)] uppercase">
                <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500" /> Network Active</span>
@@ -605,9 +605,9 @@ export default function ShipmentsPage() {
                    </div>
                  )}
               </div>
-              <button className="btn-secondary w-full py-4 mt-8 text-[10px] flex items-center justify-center gap-2">
-                  Full Logistics Audit <ExternalLink size={14} />
-              </button>
+               <button className="bg-slate-950 text-[var(--bg-0)] hover:bg-emerald-600 transition-all w-full py-4 mt-8 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 rounded-2xl italic">
+                   Full Logistics Audit <ExternalLink size={14} />
+               </button>
            </div>
         </div>
       </div>
@@ -649,17 +649,17 @@ export default function ShipmentsPage() {
               
               <div className="flex gap-4">
                 <button onClick={() => setReceiveModal(null)} className="flex-1 py-4 text-[10px] font-bold uppercase border border-border rounded-2xl hover:bg-[var(--bg-1)] transition-all">Cancel</button>
-                <button
-                  onClick={() => {
-                    receiveIntoInventory(receiveModal.id)
-                    setReceiveModal(null)
-                    showToast('Shipment Received. Opening Warehouse Put-Away...', 'success')
-                    setTimeout(() => router.push('/warehouse'), 800)
-                  }}
-                  className="btn-primary flex-[2] py-4 text-[10px] flex items-center justify-center gap-2"
-                >
-                  <CheckCircle2 size={16} /> Finalize Reception
-                </button>
+                 <button
+                   onClick={() => {
+                     receiveIntoInventory(receiveModal.id)
+                     setReceiveModal(null)
+                     showToast('Shipment Received. Opening Warehouse Put-Away...', 'success')
+                     setTimeout(() => router.push('/warehouse'), 800)
+                   }}
+                   className="bg-slate-950 text-[var(--bg-0)] hover:bg-emerald-600 flex-[2] py-4 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 rounded-2xl italic"
+                 >
+                   <CheckCircle2 size={16} /> Finalize Reception
+                 </button>
               </div>
             </motion.div>
           </div>

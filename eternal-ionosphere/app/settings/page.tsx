@@ -22,11 +22,11 @@ export default function SettingsHub() {
   return (
     <div className="p-6 lg:p-10 max-w-4xl mx-auto min-h-screen">
       <div className="flex items-center gap-4 mb-10">
-        <div className="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-500">
+        <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
           <SettingsIcon size={24} />
         </div>
         <div>
-          <h1 className="text-3xl font-black text-[var(--text-primary)] tracking-tight">System Kernel</h1>
+          <h1 className="text-3xl font-black text-[var(--text-primary)] tracking-tight italic uppercase">System Kernel</h1>
           <p className="text-xs text-[var(--text-secondary)] opacity-50 uppercase tracking-widest font-bold">Configure Enterprise Parameters</p>
         </div>
       </div>
@@ -47,11 +47,11 @@ export default function SettingsHub() {
                     className={`block p-6 rounded-3xl border transition-all ${
                       isDisabled 
                         ? 'bg-[var(--bg-1)] border-[var(--border)] opacity-50 cursor-not-allowed' 
-                        : 'bg-[var(--bg-1)] border-[var(--border)] hover:border-indigo-500/30 hover:shadow-xl group'
+                        : 'bg-[var(--bg-1)] border-[var(--border)] hover:border-emerald-500/30 hover:shadow-xl group'
                     }`}
                   >
                     <div className="flex items-center gap-5">
-                      <div className={`p-4 rounded-2xl ${isDisabled ? 'bg-slate-500/10 text-slate-500' : 'bg-indigo-500/10 text-indigo-500 group-hover:scale-110 transition-transform'}`}>
+                      <div className={`p-4 rounded-2xl ${isDisabled ? 'bg-slate-500/10 text-slate-500' : 'bg-emerald-500/10 text-emerald-500 group-hover:scale-110 transition-transform'}`}>
                         <item.icon size={24} />
                       </div>
                       <div className="flex-1">

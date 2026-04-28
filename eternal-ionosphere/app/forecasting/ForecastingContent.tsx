@@ -317,14 +317,14 @@ export default function ForecastingContent() {
                     >Category Filter</button>
                  </div>
                  {viewMode === 'sku' ? (
-                   <h1 className="text-6xl font-black text-[var(--text-primary)] tracking-tighter uppercase mb-6 leading-none">
+                   <h1 className="text-6xl font-black text-[var(--text-primary)] tracking-tighter uppercase mb-6 leading-none italic">
                      {activeProjections[0].sku.name}
                    </h1>
                  ) : (
                    <select 
                      value={selectedCategory} 
                      onChange={e => setSelectedCategory(e.target.value)}
-                     className="bg-transparent border-none text-6xl font-black text-[var(--text-primary)] tracking-tighter uppercase mb-6 leading-none focus:ring-0 p-0 hover:text-[var(--brand)] transition-colors cursor-pointer"
+                     className="bg-transparent border-none text-6xl font-black text-[var(--text-primary)] tracking-tighter uppercase mb-6 leading-none focus:ring-0 p-0 hover:text-emerald-500 transition-colors cursor-pointer italic"
                    >
                       {Array.from(new Set(skuList.map(s => s.category).filter(Boolean))).map(c => (
                          <option key={c as string} value={c as string} className="bg-[var(--bg-1)] text-sm">{c as string}</option>
@@ -336,7 +336,7 @@ export default function ForecastingContent() {
                      {activeProjections.reduce((sum, p) => sum + p.sku.qtyOnHand, 0).toLocaleString()} 
                    </span>
                    <div className="flex flex-col mb-1">
-                      <div className={`flex items-center gap-1.5 text-base font-black uppercase tracking-widest ${isUp ? 'text-indigo-600' : 'text-rose-600'}`}>
+                      <div className={`flex items-center gap-1.5 text-base font-black uppercase tracking-widest ${isUp ? 'text-emerald-600' : 'text-rose-600'}`}>
                          {isUp ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
                          {isUp ? '+12.4%' : '-8.2%'}
                       </div>
@@ -358,7 +358,7 @@ export default function ForecastingContent() {
                   </div>
                   <div className="bg-[var(--bg-2)] border border-[var(--border)] rounded-3xl p-6 shadow-inner">
                      <div className="text-[9px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-4">Current Burn Velocity</div>
-                     <div className="text-3xl font-black text-indigo-400 tabular-nums">{activeProjections.reduce((sum, p) => sum + (p.sku.utilizationRateWeek || 0), 0).toFixed(1)} <span className="text-xs uppercase ml-1 text-indigo-400/50">/ WK</span></div>
+                     <div className="text-3xl font-black text-emerald-400 tabular-nums">{activeProjections.reduce((sum, p) => sum + (p.sku.utilizationRateWeek || 0), 0).toFixed(1)} <span className="text-xs uppercase ml-1 text-emerald-400/50">/ WK</span></div>
                   </div>
                   <div className="bg-[var(--bg-2)] border border-[var(--border)] rounded-3xl p-6 shadow-inner">
                      <div className="text-[9px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-4">Replenishment Logic</div>
@@ -583,7 +583,7 @@ export default function ForecastingContent() {
                     <option value="" disabled selected>Pre-Add from Catalog...</option>
                     {PRE_DEFINED_CATALOG.map(c => <option key={c.id} value={c.name} className="bg-[var(--bg-1)]">{c.name} ({c.category})</option>)}
                   </select>
-                  <button 
+                   <button 
                     onClick={() => {
                       const newSku: SKUData = {
                         id: `NEW-${Math.floor(Math.random()*10000)}`,
@@ -601,7 +601,7 @@ export default function ForecastingContent() {
                       setInventory([...skuList, newSku])
                       setSelectedSkuId(newSku.id)
                     }}
-                    className="bg-cyan-500 text-black text-[10px] font-black px-8 py-4 rounded-2xl flex items-center gap-3 shadow-xl transition-all uppercase tracking-widest"
+                    className="bg-slate-950 text-[var(--bg-0)] hover:bg-emerald-600 text-[10px] font-black px-8 py-4 rounded-2xl flex items-center gap-3 shadow-xl transition-all uppercase tracking-widest italic"
                   >
                     <Plus size={18} /> Add Custom
                   </button>
@@ -687,7 +687,7 @@ export default function ForecastingContent() {
                       <td className="py-6">
                         <input 
                           type="number"
-                          className="bg-transparent border-none text-[11px] font-black text-indigo-400 w-24 text-right focus:ring-0"
+                          className="bg-transparent border-none text-[11px] font-black text-emerald-400 w-24 text-right focus:ring-0"
                           value={sku.utilizationRateWeek}
                           onChange={(e) => {
                             const newList = [...skuList]
@@ -793,11 +793,11 @@ export default function ForecastingContent() {
           
           {/* AI COPILOT & ACTIONS */}
           <section className="bg-[var(--bg-2)] backdrop-blur-3xl rounded-[48px] border border-[var(--border)] p-8 flex flex-col h-[600px] shadow-[0_40px_80px_rgba(0,0,0,0.5)] relative overflow-hidden">
-            <div className="absolute -top-20 -right-20 w-60 h-60 bg-indigo-600/10 blur-[100px] pointer-events-none transition-all duration-1000 group-hover:opacity-100" />
+            <div className="absolute -top-20 -right-20 w-60 h-60 bg-emerald-600/10 blur-[100px] pointer-events-none transition-all duration-1000 group-hover:opacity-100" />
             
             <div className="flex items-center justify-between mb-10">
                <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shadow-inner">
+                  <div className="w-14 h-14 rounded-2xl bg-emerald-600/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-inner">
                     <BrainCircuit size={28} />
                   </div>
                   <div>
