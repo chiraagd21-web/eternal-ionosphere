@@ -117,7 +117,7 @@ export function Sidebar() {
             </svg>
           </div>
           <div className="flex flex-col">
-            <div className="text-2xl font-black uppercase tracking-tighter italic text-slate-950">ZO.FLOW</div>
+            <div className="text-2xl font-black italic tracking-tighter text-slate-950">Zo.Flow</div>
             <div className="text-[8px] text-neutral-400 font-black uppercase tracking-[0.4em] mt-1">Operational Authority</div>
           </div>
         </Link>

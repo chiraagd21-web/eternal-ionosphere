@@ -60,28 +60,28 @@ const Logo = () => (
       <circle cx="6" cy="6" r="6" fill="currentColor"/>
       <rect x="18" y="2" width="14" height="8" fill="currentColor"/>
     </svg>
-    <span className="text-lg font-black tracking-tighter italic text-black">ZO.FLOW</span>
+    <span className="text-xl font-black tracking-tighter italic text-black">Zo.Flow</span>
   </div>
 )
 
 const Nav = () => (
   <nav className="fixed top-0 left-0 w-full p-8 lg:px-12 flex justify-between items-center z-[100] bg-white/80 backdrop-blur-xl border-b border-black/5">
     <Link href="/"><Logo /></Link>
-    <div className="hidden lg:flex items-center gap-10 text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500">
-      <Link href="/about" className="hover:text-black transition-colors">About</Link>
-      <Link href="/features" className="hover:text-black transition-colors">Features</Link>
-      <Link href="/pricing" className="hover:text-black transition-colors">Pricing</Link>
-      <Link href="/contact" className="hover:text-black transition-colors">Contact</Link>
+    <div className="hidden lg:flex items-center gap-10 text-[9px] font-black uppercase tracking-[0.4em] text-neutral-400">
+      <Link href="/about" className="hover:text-black transition-colors">ABOUT</Link>
+      <Link href="/features" className="hover:text-black transition-colors">FEATURES</Link>
+      <Link href="/pricing" className="hover:text-black transition-colors">PRICING</Link>
+      <Link href="/contact" className="hover:text-black transition-colors">CONTACT</Link>
     </div>
-    <Link href="/login" className="px-10 py-3 bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full hover:bg-emerald-600 transition-all shadow-2xl hover:scale-105 active:scale-95">
-      Login
+    <Link href="/login" className="px-12 py-4 bg-black text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full hover:bg-emerald-600 transition-all shadow-2xl hover:scale-105 active:scale-95">
+      LOGIN
     </Link>
   </nav>
 )
 
 export default function LandingPage() {
   return (
-    <div className="bg-[#f8f9fa] text-black min-h-screen selection:bg-emerald-500 selection:text-white">
+    <div className="bg-white text-black min-h-screen selection:bg-emerald-500 selection:text-white">
       <Nav />
       
       <main className="pt-48 pb-32">
@@ -90,18 +90,18 @@ export default function LandingPage() {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-emerald-500 font-black tracking-[0.4em] text-[10px] uppercase mb-10 flex items-center gap-3"
+            className="text-emerald-500 font-black tracking-[0.5em] text-[10px] uppercase mb-16 flex items-center gap-4"
           >
-            <Zap size={12} fill="currentColor" /> Operational Authority OS
+            <Zap size={14} fill="currentColor" /> Operational Authority OS
           </motion.div>
           
           <motion.h1 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="text-6xl sm:text-8xl lg:text-[11rem] font-black italic tracking-tighter leading-[0.85] text-black uppercase mb-16"
+            className="text-6xl sm:text-8xl lg:text-[11.5rem] font-black italic tracking-tighter leading-[0.8] text-black uppercase mb-16"
           >
-            Supply Chain <br/> Unified
+            SUPPLY CHAIN <br/> UNIFIED
           </motion.h1>
           
           <motion.p 

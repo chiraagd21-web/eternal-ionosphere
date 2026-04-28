@@ -98,7 +98,7 @@ export default function LoginPage() {
                <circle cx="6" cy="6" r="6" fill="currentColor"/>
                <rect x="18" y="2" width="14" height="8" fill="currentColor"/>
             </svg>
-            <div className="text-2xl font-black uppercase tracking-tighter italic text-slate-950">ZO.FLOW</div>
+            <div className="text-2xl font-black italic tracking-tighter text-slate-950">Zo.Flow</div>
          </Link>
       </nav>
 
@@ -115,7 +115,7 @@ export default function LoginPage() {
                  {isSignUp ? <Globe size={32} /> : <Fingerprint size={32} />}
               </div>
               <h1 className="text-6xl font-black text-slate-950 tracking-tighter uppercase italic leading-none">
-                 {isSignUp ? 'Create Account' : 'Login'}
+                 {isSignUp ? 'CREATE ACCOUNT' : 'LOGIN'}
               </h1>
               <p className="text-sm font-bold text-slate-400 max-w-xs mx-auto italic tracking-wide uppercase">
                  {isSignUp ? 'Sign up for a new account' : 'Enter your email and password to login'}
@@ -149,7 +149,7 @@ export default function LoginPage() {
                     className="w-full py-8 bg-slate-950 text-white font-black uppercase tracking-[0.6em] text-[11px] rounded-full transition-all flex items-center justify-center gap-4 hover:bg-emerald-600 shadow-2xl hover:scale-[1.02] active:scale-[0.98]"
                  >
                     {loading ? <Loader2 className="animate-spin" size={18} /> : (isSignUp ? <Globe size={18} /> : <Zap size={18} fill="currentColor" />)}
-                    {loading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Login')}
+                    {loading ? 'Processing...' : (isSignUp ? 'CREATE ACCOUNT' : 'LOGIN')}
                  </button>
 
                  <AnimatePresence>
